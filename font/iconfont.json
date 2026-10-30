@@ -1,0 +1,37 @@
+{
+  "id": "5231934",
+  "name": "no name",
+  "font_family": "iconfont",
+  "css_prefix_text": "icon-",
+  "description": "",
+  "glyphs": [
+    {
+      "icon_id": "48426827",
+      "name": "灯泡",
+      "font_class": "dengpao",
+      "unicode": "e794",
+      "unicode_decimal": 59284
+    },
+    {
+      "icon_id": "48426828",
+      "name": "门",
+      "font_class": "men",
+      "unicode": "e795",
+      "unicode_decimal": 59285
+    },
+    {
+      "icon_id": "48426829",
+      "name": "单轮车",
+      "font_class": "danlunche",
+      "unicode": "e796",
+      "unicode_decimal": 59286
+    },
+    {
+      "icon_id": "48426830",
+      "name": "纸飞机",
+      "font_class": "zhifeiji",
+      "unicode": "e797",
+      "unicode_decimal": 59287
+    }
+  ]
+}

@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Index · Iconfont Showcase</title>
+<link rel="stylesheet" href="cdn/fonts/fonts.css">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --syzm-bg: #F2EFE8;
+    --syzm-text: #1A1A2E;
+    --syzm-muted: #6B6B7A;
+    --syzm-accent: #D90429;
+    --syzm-outline: 1px solid #1A1A2E;
+  }
+  html { font-size: 16px; }
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--syzm-bg);
+    color: var(--syzm-text);
+    min-height: 100vh;
+    padding: 0 40px;
+    display: flex;
+    flex-direction: column;
+  }
+  .syzm_topbar {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 28px 0 12px; border-bottom: var(--syzm-outline);
+  }
+  .syzm_topbar_num {
+    font-family: 'Fraunces', serif; font-size: 0.95rem;
+    letter-spacing: 0.12em; color: var(--syzm-accent); font-weight: 600;
+  }
+  .syzm_topbar_brand {
+    font-family: 'Fraunces', serif; font-size: 0.95rem; font-weight: 500;
+  }
+  .syzm_main {
+    flex: 1; display: flex; flex-direction: column;
+    justify-content: center; padding: 60px 0;
+  }
+  .syzm_label {
+    font-size: 0.82rem; letter-spacing: 0.18em;
+    text-transform: uppercase; color: var(--syzm-muted); font-weight: 500;
+  }
+  .syzm_title {
+    font-family: 'Fraunces', serif;
+    font-size: clamp(3.5rem, 9vw, 7rem);
+    font-weight: 300; line-height: 0.92;
+    letter-spacing: -0.03em; margin: 16px 0 48px;
+  }
+  .syzm_title em {
+    font-style: italic; font-weight: 600; color: var(--syzm-accent);
+  }
+  .syzm_links {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 24px; max-width: 900px;
+  }
+  .syzm_link_card {
+    display: block; padding: 40px 32px;
+    border: var(--syzm-outline); text-decoration: none;
+    color: var(--syzm-text); background: transparent;
+    transition: background 0.3s ease, color 0.3s ease, transform 0.25s ease;
+  }
+  .syzm_link_card:hover {
+    background: var(--syzm-accent); color: var(--syzm-bg); transform: translateY(-4px);
+  }
+  .syzm_link_num {
+    font-family: 'Fraunces', serif; font-size: 1.3rem;
+    color: var(--syzm-accent); font-weight: 600; letter-spacing: 0.08em;
+    display: block; margin-bottom: 16px;
+  }
+  .syzm_link_card:hover .syzm_link_num { color: var(--syzm-bg); }
+  .syzm_link_title {
+    font-family: 'Fraunces', serif; font-size: 2rem;
+    font-weight: 400; letter-spacing: -0.01em; line-height: 1.2;
+  }
+  .syzm_link_desc {
+    margin-top: 12px; color: var(--syzm-muted); font-size: 0.92rem;
+  }
+  .syzm_link_card:hover .syzm_link_desc { color: rgba(242, 239, 232, 0.75); }
+  .syzm_footer {
+    padding: 32px 0 40px; border-top: var(--syzm-outline);
+    font-family: 'Fraunces', serif; font-size: 0.9rem; color: var(--syzm-muted);
+  }
+  @media (max-width: 600px) {
+    body { padding: 0 20px; }
+    .syzm_main { padding: 40px 0; }
+    .syzm_link_card { padding: 28px 24px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="syzm_topbar">
+  <span class="syzm_topbar_num">index</span>
+  <span class="syzm_topbar_brand">iconfont showcase</span>
+</header>
+
+<main class="syzm_main">
+  <div class="syzm_label">Two approaches, one subject</div>
+  <h1 class="syzm_title">An <em>Icon</em> Reader</h1>
+
+  <div class="syzm_links">
+    <a class="syzm_link_card" href="iconfont-1.html">
+      <span class="syzm_link_num">01</span>
+      <div class="syzm_link_title">Font Awesome</div>
+      <div class="syzm_link_desc">Font-based icons rendered via CSS classes — a gallery wall of glyphs.</div>
+    </a>
+    <a class="syzm_link_card" href="iconfont-2.html">
+      <span class="syzm_link_num">02</span>
+      <div class="syzm_link_title">Lucide</div>
+      <div class="syzm_link_desc">Inline SVG icons rendered via lucide.js — an editorial spread of marks.</div>
+    </a>
+  </div>
+</main>
+
+<footer class="syzm_footer">
+  built with care · local assets in cdn/
+</footer>
+
+</body>
+</html>

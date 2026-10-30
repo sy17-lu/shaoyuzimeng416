@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Iconfont — Lucide · 02</title>
+<script src="cdn/lucide/lucide.min.js"></script>
+<link rel="stylesheet" href="cdn/fonts/fonts.css">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --syzm-bg: #F2EFE8;
+    --syzm-surface: #E8E4DB;
+    --syzm-surface-alt: #DDD8CE;
+    --syzm-text: #1A1A2E;
+    --syzm-muted: #6B6B7A;
+    --syzm-accent: #D90429;
+    --syzm-outline: 1px solid #1A1A2E;
+  }
+
+  html { font-size: 16px; scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--syzm-bg);
+    color: var(--syzm-text);
+    line-height: 1.7;
+    min-height: 100vh;
+    padding: 0 40px;
+  }
+
+  /* ── Top Bar ── */
+  .syzm_topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 28px 0 12px;
+    border-bottom: var(--syzm-outline);
+  }
+  .syzm_topbar_num {
+    font-family: 'Fraunces', serif;
+    font-size: 0.95rem;
+    letter-spacing: 0.12em;
+    color: var(--syzm-accent);
+    font-weight: 600;
+  }
+  .syzm_topbar_nav a {
+    font-family: 'Fraunces', serif;
+    font-size: 0.95rem;
+    color: var(--syzm-text);
+    text-decoration: none;
+    margin-left: 32px;
+    position: relative;
+  }
+  .syzm_topbar_nav a:hover { color: var(--syzm-accent); }
+  .syzm_topbar_nav a.syzm_active { color: var(--syzm-accent); }
+
+  /* ── Hero (editorial) ── */
+  .syzm_hero {
+    padding: 72px 0 56px;
+    border-bottom: var(--syzm-outline);
+    max-width: 900px;
+  }
+  .syzm_hero_label {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.82rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--syzm-muted);
+    font-weight: 500;
+  }
+  .syzm_hero_title {
+    font-family: 'Fraunces', serif;
+    font-size: clamp(3.5rem, 9vw, 7rem);
+    font-weight: 300;
+    line-height: 0.92;
+    letter-spacing: -0.03em;
+    margin-top: 20px;
+  }
+  .syzm_hero_title em {
+    font-style: italic;
+    font-weight: 600;
+    color: var(--syzm-accent);
+  }
+
+  /* ── Editorial Grid ── */
+  .syzm_editorial {
+    padding: 56px 0 80px;
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap: 32px 48px;
+  }
+
+  .syzm_block {
+    grid-column: span 8;
+    font-size: 1.05rem;
+    color: var(--syzm-text);
+  }
+  .syzm_block p { margin-bottom: 20px; }
+  .syzm_block p:first-child::first-letter {
+    font-family: 'Fraunces', serif;
+    font-size: 3.2rem;
+    float: left;
+    line-height: 0.85;
+    padding-right: 8px;
+    padding-top: 6px;
+    color: var(--syzm-accent);
+    font-weight: 600;
+  }
+
+  /* Pull-quote icon on the right */
+  .syzm_pull {
+    grid-column: span 4;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 24px;
+    border-left: var(--syzm-outline);
+    position: relative;
+  }
+  .syzm_pull svg {
+    width: clamp(4rem, 10vw, 7rem);
+    height: clamp(4rem, 10vw, 7rem);
+    color: var(--syzm-text);
+    stroke-width: 1.25;
+    transition: color 0.3s ease, transform 0.3s ease;
+  }
+  .syzm_pull:hover svg { color: var(--syzm-accent); transform: scale(1.08); }
+  .syzm_pull_caption {
+    font-family: 'Fraunces', serif;
+    font-size: 1.1rem;
+    font-style: italic;
+    margin-top: 20px;
+    text-align: center;
+    color: var(--syzm-muted);
+  }
+  .syzm_pull_name {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.7rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    margin-top: 4px;
+    color: var(--syzm-muted);
+    opacity: 0.7;
+  }
+
+  /* Alternating — pull on left */
+  .syzm_pull_left {
+    grid-column: span 4;
+    border-left: none;
+    border-right: var(--syzm-outline);
+  }
+  .syzm_block_right { grid-column: span 8; }
+
+  /* Row 3 — featured large icon + 2 paras */
+  .syzm_feature {
+    grid-column: span 12;
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 48px;
+    padding: 56px 0;
+    border-top: var(--syzm-outline);
+    border-bottom: var(--syzm-outline);
+    align-items: center;
+  }
+  .syzm_feature_icon svg {
+    width: 100%;
+    max-width: 200px;
+    height: auto;
+    color: var(--syzm-accent);
+    stroke-width: 1.1;
+  }
+  .syzm_feature_label {
+    font-family: 'Fraunces', serif;
+    font-size: 2rem;
+    font-weight: 400;
+    line-height: 1.2;
+    margin-bottom: 12px;
+  }
+  .syzm_feature_name {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.78rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--syzm-muted);
+    margin-bottom: 16px;
+  }
+  .syzm_feature_desc { color: var(--syzm-muted); font-size: 1rem; }
+
+  /* Row 4 — compact icon strip */
+  .syzm_strip {
+    grid-column: span 12;
+    display: grid;
+    grid-template-columns: repeat(10, 1fr);
+    gap: 0;
+    border-top: var(--syzm-outline);
+    border-left: var(--syzm-outline);
+  }
+  .syzm_strip_cell {
+    aspect-ratio: 1 / 1;
+    background: var(--syzm-surface);
+    border-right: var(--syzm-outline);
+    border-bottom: var(--syzm-outline);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    transition: background 0.3s ease, color 0.3s ease;
+    position: relative;
+  }
+  .syzm_strip_cell svg {
+    width: clamp(1.2rem, 2.5vw, 2rem);
+    height: clamp(1.2rem, 2.5vw, 2rem);
+    color: var(--syzm-text);
+    stroke-width: 1.75;
+    transition: transform 0.3s ease;
+  }
+  .syzm_strip_cell:hover { background: var(--syzm-accent); }
+  .syzm_strip_cell:hover svg { color: var(--syzm-bg); transform: scale(1.25); }
+
+  /* ── Footer ── */
+  .syzm_footer {
+    padding: 32px 0 48px;
+    border-top: var(--syzm-outline);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: 'Fraunces', serif;
+    font-size: 0.95rem;
+  }
+  .syzm_footer a {
+    color: var(--syzm-text);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .syzm_footer a:hover { color: var(--syzm-accent); }
+  .syzm_footer_label {
+    color: var(--syzm-muted);
+    font-family: 'Inter', sans-serif;
+    font-size: 0.72rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  /* ── Responsive ── */
+  @media (max-width: 900px) {
+    body { padding: 0 20px; }
+    .syzm_editorial { gap: 24px; }
+    .syzm_block, .syzm_pull, .syzm_block_right, .syzm_pull_left { grid-column: span 12; border: none !important; padding: 16px 0; }
+    .syzm_pull_left { border-right: none; }
+    .syzm_feature { grid-template-columns: 1fr; text-align: center; }
+    .syzm_feature_icon { display: flex; justify-content: center; }
+    .syzm_strip { grid-template-columns: repeat(5, 1fr); }
+    .syzm_footer { flex-direction: column; gap: 20px; text-align: center; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Top Bar -->
+<header class="syzm_topbar">
+  <span class="syzm_topbar_num">02 — lucide</span>
+  <nav class="syzm_topbar_nav">
+    <a href="index.html">home</a>
+    <a href="iconfont-1.html">fa</a>
+    <a href="iconfont-2.html" class="syzm_active">lucide</a>
+  </nav>
+</header>
+
+<!-- Hero -->
+<section class="syzm_hero">
+  <div class="syzm_hero_label">An editorial selection from</div>
+  <h1 class="syzm_hero_title">The <em>Lucide</em> Reader</h1>
+</section>
+
+<!-- Editorial Content -->
+<main class="syzm_editorial" id="syzm_editorial">
+
+  <!-- Row 1: text right, pull quote left -->
+  <aside class="syzm_pull syzm_pull_left">
+    <i data-lucide="sparkle"></i>
+    <div class="syzm_pull_caption">a glint of something</div>
+    <div class="syzm_pull_name">sparkle</div>
+  </aside>
+  <article class="syzm_block syzm_block_right">
+    <p>Lucide began as a fork of Feather — a minimal icon set, drawn on a 24-pixel grid with consistent stroke weight and a single, quiet personality. Where its predecessor favored restraint, Lucide has grown into a larger family while holding onto the same geometric discipline.</p>
+    <p>Each icon is an inline SVG. No font file to serve, no glyph substitution to debug. What you see in the source is what renders on screen. The trade-off is weight — but for an editorial page like this, that transparency is the point.</p>
+  </article>
+
+  <!-- Row 2: text left, pull quote right -->
+  <article class="syzm_block">
+    <p>We chose a small set here, each picked for a specific mood rather than utility. A flame is not a "fire icon" — it is a gesture, a breath, a pulse. A gem is not a "diamond" — it is weight, clarity, something held up to the light. The curation is the work.</p>
+    <p>Rendered at 1.25px stroke, the Lucide family feels drawn rather than stamped. Compare that to the previous page's Font Awesome — the difference in voice is audible, even when both are silent.</p>
+  </article>
+  <aside class="syzm_pull">
+    <i data-lucide="gem"></i>
+    <div class="syzm_pull_caption">cut from a quiet stone</div>
+    <div class="syzm_pull_name">gem</div>
+  </aside>
+
+  <!-- Row 3: Feature -->
+  <section class="syzm_feature">
+    <div class="syzm_feature_icon">
+      <i data-lucide="palette"></i>
+    </div>
+    <div>
+      <div class="syzm_feature_name">lucide · palette</div>
+      <div class="syzm_feature_label">The mark of a hand that chooses.</div>
+      <p class="syzm_feature_desc">Where Font Awesome's palette is dense and illustrative, Lucide's is open and declarative — a circle of four lines, each a decision. Both are called palette. They are not the same object.</p>
+    </div>
+  </section>
+
+  <!-- Row 4: compact strip -->
+  <div class="syzm_strip">
+    <a class="syzm_strip_cell" href="#" title="flame"><i data-lucide="flame"></i></a>
+    <a class="syzm_strip_cell" href="#" title="cloud"><i data-lucide="cloud"></i></a>
+    <a class="syzm_strip_cell" href="#" title="umbrella"><i data-lucide="umbrella"></i></a>
+    <a class="syzm_strip_cell" href="#" title="coffee"><i data-lucide="coffee"></i></a>
+    <a class="syzm_strip_cell" href="#" title="anchor"><i data-lucide="anchor"></i></a>
+    <a class="syzm_strip_cell" href="#" title="award"><i data-lucide="award"></i></a>
+    <a class="syzm_strip_cell" href="#" title="box"><i data-lucide="box"></i></a>
+    <a class="syzm_strip_cell" href="#" title="feather"><i data-lucide="feather"></i></a>
+    <a class="syzm_strip_cell" href="#" title="camera"><i data-lucide="camera"></i></a>
+    <a class="syzm_strip_cell" href="#" title="music"><i data-lucide="music"></i></a>
+    <a class="syzm_strip_cell" href="#" title="leaf"><i data-lucide="leaf"></i></a>
+    <a class="syzm_strip_cell" href="#" title="sun"><i data-lucide="sun"></i></a>
+    <a class="syzm_strip_cell" href="#" title="moon"><i data-lucide="moon"></i></a>
+    <a class="syzm_strip_cell" href="#" title="heart"><i data-lucide="heart"></i></a>
+    <a class="syzm_strip_cell" href="#" title="star"><i data-lucide="star"></i></a>
+    <a class="syzm_strip_cell" href="#" title="zap"><i data-lucide="zap"></i></a>
+    <a class="syzm_strip_cell" href="#" title="compass"><i data-lucide="compass"></i></a>
+    <a class="syzm_strip_cell" href="#" title="pen-tool"><i data-lucide="pen-tool"></i></a>
+    <a class="syzm_strip_cell" href="#" title="eye"><i data-lucide="eye"></i></a>
+    <a class="syzm_strip_cell" href="#" title="mail"><i data-lucide="mail"></i></a>
+  </div>
+
+</main>
+
+<!-- Footer -->
+<footer class="syzm_footer">
+  <div>
+    <div class="syzm_footer_label">← previous</div>
+    <a href="iconfont-1.html">Font Awesome — 01</a>
+  </div>
+  <a href="index.html">return to index</a>
+</footer>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function syzm_initLucide() {
+    lucide.createIcons();
+  });
+</script>
+</body>
+</html>

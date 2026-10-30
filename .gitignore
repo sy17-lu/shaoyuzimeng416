@@ -1,0 +1,12 @@
+# 敏感凭据（绝不入库）
+.gitee_token
+
+# 提示词日志：含明文令牌，仅本地保留
+syzm_prompt.md
+
+# 嵌套 git 仓库（另有独立远端，已推送至 Gitee）
+lusyzm/
+
+# 工具与编辑器缓存
+.screenshots/
+.trae-html-share-packages/

@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Iconfont — Font Awesome · 01</title>
+<link rel="stylesheet" href="cdn/font-awesome/css/all.min.css">
+<link rel="stylesheet" href="cdn/fonts/fonts.css">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --syzm-bg: #F2EFE8;
+    --syzm-surface: #E8E4DB;
+    --syzm-surface-alt: #DDD8CE;
+    --syzm-text: #1A1A2E;
+    --syzm-muted: #6B6B7A;
+    --syzm-accent: #D90429;
+    --syzm-outline: 1px solid #1A1A2E;
+  }
+
+  html { font-size: 16px; scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--syzm-bg);
+    color: var(--syzm-text);
+    line-height: 1.6;
+    min-height: 100vh;
+    padding: 0 40px;
+  }
+
+  /* ── Top Bar ── */
+  .syzm_topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 28px 0 12px;
+    border-bottom: var(--syzm-outline);
+  }
+  .syzm_topbar_num {
+    font-family: 'Fraunces', serif;
+    font-size: 0.95rem;
+    letter-spacing: 0.12em;
+    color: var(--syzm-accent);
+    font-weight: 600;
+  }
+  .syzm_topbar_nav a {
+    font-family: 'Fraunces', serif;
+    font-size: 0.95rem;
+    color: var(--syzm-text);
+    text-decoration: none;
+    margin-left: 32px;
+    position: relative;
+  }
+  .syzm_topbar_nav a:hover { color: var(--syzm-accent); }
+  .syzm_topbar_nav a.syzm_active { color: var(--syzm-accent); }
+
+  /* ── Hero ── */
+  .syzm_hero {
+    padding: 80px 0 60px;
+    border-bottom: var(--syzm-outline);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 48px;
+    align-items: end;
+  }
+  .syzm_hero_label {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.82rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--syzm-muted);
+    font-weight: 500;
+  }
+  .syzm_hero_title {
+    font-family: 'Fraunces', serif;
+    font-size: clamp(3rem, 8vw, 6.5rem);
+    font-weight: 300;
+    line-height: 0.95;
+    letter-spacing: -0.02em;
+    margin-top: 16px;
+    color: var(--syzm-text);
+  }
+  .syzm_hero_title em {
+    font-style: italic;
+    font-weight: 600;
+    color: var(--syzm-accent);
+  }
+  .syzm_hero_desc {
+    font-size: 1.05rem;
+    color: var(--syzm-muted);
+    max-width: 320px;
+    text-align: right;
+    justify-self: end;
+  }
+
+  /* ── Gallery Wall ── */
+  .syzm_gallery {
+    padding: 48px 0 80px;
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap: 2px;
+  }
+  .syzm_tile {
+    background: var(--syzm-surface);
+    aspect-ratio: 1 / 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    color: var(--syzm-text);
+    transition: background 0.3s ease, color 0.3s ease, transform 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    padding: 20px;
+    border: 1px solid var(--syzm-bg);
+  }
+  .syzm_tile:hover {
+    background: var(--syzm-accent);
+    color: var(--syzm-bg);
+    transform: scale(1.02);
+    z-index: 2;
+    border-color: var(--syzm-accent);
+  }
+  .syzm_tile i {
+    font-size: clamp(1.5rem, 4vw, 3.2rem);
+    margin-bottom: 14px;
+    transition: transform 0.3s ease;
+  }
+  .syzm_tile:hover i { transform: scale(1.15); }
+  .syzm_tile_name {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.72rem;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-align: center;
+    line-height: 1.3;
+  }
+
+  /* Feature tile — spans 6 cols, bigger */
+  .syzm_tile_feature {
+    grid-column: span 6;
+    grid-row: span 2;
+    aspect-ratio: auto;
+    min-height: 280px;
+    background: var(--syzm-text);
+    color: var(--syzm-bg);
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  .syzm_tile_feature:hover {
+    background: var(--syzm-accent);
+    color: var(--syzm-bg);
+  }
+  .syzm_tile_feature i {
+    font-size: clamp(4rem, 10vw, 7rem);
+    margin-bottom: 24px;
+  }
+  .syzm_tile_feature .syzm_tile_name {
+    font-size: 0.82rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+  }
+  .syzm_tile_feature .syzm_tile_sub {
+    font-family: 'Fraunces', serif;
+    font-size: 1.6rem;
+    font-style: italic;
+    margin-top: 8px;
+    letter-spacing: -0.01em;
+  }
+
+  /* Medium tiles — 3 cols */
+  .syzm_tile_medium { grid-column: span 3; }
+  /* Small tiles — 2 cols */
+  .syzm_tile_small { grid-column: span 2; }
+
+  /* Footer cross-links */
+  .syzm_footer {
+    padding: 32px 0 48px;
+    border-top: var(--syzm-outline);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: 'Fraunces', serif;
+    font-size: 0.95rem;
+  }
+  .syzm_footer a {
+    color: var(--syzm-text);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .syzm_footer a:hover { color: var(--syzm-accent); }
+  .syzm_footer_label {
+    color: var(--syzm-muted);
+    font-family: 'Inter', sans-serif;
+    font-size: 0.72rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  /* ── Responsive ── */
+  @media (max-width: 900px) {
+    body { padding: 0 20px; }
+    .syzm_hero { grid-template-columns: 1fr; gap: 24px; padding: 48px 0 36px; }
+    .syzm_hero_desc { text-align: left; justify-self: start; }
+    .syzm_tile_feature, .syzm_tile_medium { grid-column: span 6; grid-row: span 1; aspect-ratio: 1/1; min-height: auto; }
+    .syzm_tile_small { grid-column: span 4; }
+    .syzm_tile_feature i { font-size: clamp(2.5rem, 8vw, 4rem); }
+    .syzm_footer { flex-direction: column; gap: 20px; text-align: center; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Top Bar -->
+<header class="syzm_topbar">
+  <span class="syzm_topbar_num">01 — font awesome</span>
+  <nav class="syzm_topbar_nav">
+    <a href="index.html">home</a>
+    <a href="iconfont-1.html" class="syzm_active">fa</a>
+    <a href="iconfont-2.html">lucide</a>
+  </nav>
+</header>
+
+<!-- Hero -->
+<section class="syzm_hero">
+  <div>
+    <div class="syzm_hero_label">A curated set of</div>
+    <h1 class="syzm_hero_title">Icon<em>Aphorism</em></h1>
+  </div>
+  <p class="syzm_hero_desc">
+    Icons as alphabet. Each glyph selected from Font Awesome, rendered as a font — scalable, crisp, set in motion with a single class. This wall arranges them not by category, but by feeling.
+  </p>
+</section>
+
+<!-- Gallery Wall -->
+<main class="syzm_gallery" id="syzm_gallery">
+  <!-- Rows 1–2: one feature (6 cols × 2 rows) + four mediums (3 cols each) -->
+  <a class="syzm_tile syzm_tile_feature" href="#">
+    <i class="fa-solid fa-palette"></i>
+    <span class="syzm_tile_name">fa-solid · palette</span>
+    <span class="syzm_tile_sub">the artist's hand</span>
+  </a>
+  <a class="syzm_tile syzm_tile_medium" href="#"><i class="fa-solid fa-compass"></i><span class="syzm_tile_name">fa-solid · compass</span></a>
+  <a class="syzm_tile syzm_tile_medium" href="#"><i class="fa-solid fa-eye"></i><span class="syzm_tile_name">fa-solid · eye</span></a>
+  <a class="syzm_tile syzm_tile_medium" href="#"><i class="fa-solid fa-pen-nib"></i><span class="syzm_tile_name">fa-solid · pen-nib</span></a>
+  <a class="syzm_tile syzm_tile_medium" href="#"><i class="fa-solid fa-brush"></i><span class="syzm_tile_name">fa-solid · brush</span></a>
+
+  <!-- Rows 3–5: eighteen small tiles (2 cols each, six per row) -->
+  <a class="syzm_tile syzm_tile_small" href="#"><i class="fa-solid fa-feather-pointed"></i><span class="syzm_tile_name">feather</span></a>
+  <a class="syzm_tile syzm_tile_small" href="#"><i class="fa-solid fa-cube"></i><span class="syzm_tile_name">cube</span></a>
+  <a class="syzm_tile syzm_tile_small" href="#"><i class="fa-solid fa-camera"></i><span class="syzm_tile_name">camera</span></a>
+  <a class="syzm_tile syzm_tile_small" href="#"><i class="fa-solid fa-music"></i><span class="syzm_tile_name">music</span></a>
+  <a class="syzm_tile syzm_tile_small" href="#"><i class="fa-solid fa-moon"></i><span class="syzm_tile_name">moon</span></a>
+  <a class="syzm_tile syzm_tile_small" href="#"><i class="fa-solid fa-sun"></i><span class="syzm_tile_name">sun</span></a>
+
+  <a class="syzm_tile syzm_tile_small" href="#"><i class="fa-solid fa-leaf"></i><span class="syzm_tile_name">leaf</span></a>
+  <a class="syzm_tile syzm_tile_small" href="#"><i class="fa-solid fa-heart"></i><span class="syzm_tile_name">heart</span></a>
+  <a class="syzm_tile syzm_tile_small" href="#"><i class="fa-solid fa-star"></i><span class="syzm_tile_name">star</span></a>
+  <a class="syzm_tile syzm_tile_small" href="#"><i class="fa-solid fa-bolt"></i><span class="syzm_tile_name">bolt</span></a>
+  <a class="syzm_tile syzm_tile_small" href="#"><i class="fa-solid fa-globe"></i><span class="syzm_tile_name">globe</span></a>
+  <a class="syzm_tile syzm_tile_small" href="#"><i class="fa-solid fa-paper-plane"></i><span class="syzm_tile_name">paper-plane</span></a>
+
+  <a class="syzm_tile syzm_tile_small" href="#"><i class="fa-brands fa-github"></i><span class="syzm_tile_name">github</span></a>
+  <a class="syzm_tile syzm_tile_small" href="#"><i class="fa-brands fa-x-twitter"></i><span class="syzm_tile_name">x-twitter</span></a>
+  <a class="syzm_tile syzm_tile_small" href="#"><i class="fa-brands fa-instagram"></i><span class="syzm_tile_name">instagram</span></a>
+  <a class="syzm_tile syzm_tile_small" href="#"><i class="fa-brands fa-behance"></i><span class="syzm_tile_name">behance</span></a>
+  <a class="syzm_tile syzm_tile_small" href="#"><i class="fa-brands fa-dribbble"></i><span class="syzm_tile_name">dribbble</span></a>
+  <a class="syzm_tile syzm_tile_small" href="#"><i class="fa-regular fa-envelope"></i><span class="syzm_tile_name">envelope</span></a>
+</main>
+
+<!-- Footer -->
+<footer class="syzm_footer">
+  <div>
+    <div class="syzm_footer_label">← previous</div>
+    <a href="iconfont-2.html">Lucide SVG — 02</a>
+  </div>
+  <a href="index.html">return to index</a>
+</footer>
+
+</body>
+</html>
