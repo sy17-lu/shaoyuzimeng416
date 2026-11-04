@@ -1,0 +1,292 @@
+<!--
+  作者：邵玉紫檬
+  建立时间：2026-11-04
+  使用大模型：DeepSeek-V4.1-Flash
+  功能名称：新闻 Tab 选项卡展示页
+-->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>News Tabs · 新闻选项卡</title>
+<link rel="stylesheet" href="cdn/fonts/fonts.css">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --syzm-bg: #F2EFE8;
+    --syzm-text: #1A1A2E;
+    --syzm-muted: #6B6B7A;
+    --syzm-accent: #D90429;
+    --syzm-rule: #D8D3C7;
+    --syzm-outline: 1px solid #1A1A2E;
+  }
+  html { font-size: 16px; }
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--syzm-bg);
+    color: var(--syzm-text);
+    min-height: 100vh;
+    padding: 0 40px;
+    display: flex;
+    flex-direction: column;
+  }
+  .SYZM_topbar {
+    display: flex; justify-content: space-between; align-items: center;
+    gap: 16px; padding: 28px 0 12px; border-bottom: var(--syzm-outline);
+  }
+  .SYZM_topbar_num {
+    font-family: 'Fraunces', serif; font-size: 0.95rem;
+    letter-spacing: 0.12em; color: var(--syzm-accent); font-weight: 600;
+  }
+  .SYZM_back {
+    font-family: 'Fraunces', serif; font-size: 0.9rem;
+    color: var(--syzm-text); text-decoration: none;
+    border-bottom: 1px solid var(--syzm-text); padding-bottom: 2px;
+    transition: color 0.25s ease, border-color 0.25s ease;
+  }
+  .SYZM_back:hover { color: var(--syzm-accent); border-color: var(--syzm-accent); }
+
+  .SYZM_main { flex: 1; padding: 56px 0 72px; }
+  .SYZM_label {
+    font-size: 0.82rem; letter-spacing: 0.18em;
+    text-transform: uppercase; color: var(--syzm-muted); font-weight: 500;
+  }
+  .SYZM_title {
+    font-family: 'Fraunces', serif;
+    font-size: clamp(2.6rem, 6vw, 4.4rem);
+    font-weight: 300; line-height: 1; letter-spacing: -0.02em;
+    margin: 16px 0 44px;
+  }
+  .SYZM_title em { font-style: italic; font-weight: 600; color: var(--syzm-accent); }
+
+  /* 选项卡条 */
+  .SYZM_tabs {
+    display: flex; flex-wrap: wrap;
+    border-bottom: var(--syzm-outline);
+    margin-bottom: 0;
+  }
+  .SYZM_tab {
+    position: relative;
+    appearance: none; background: none; border: 0;
+    font-family: 'Fraunces', serif; font-size: 1.1rem; font-weight: 400;
+    color: var(--syzm-muted);
+    padding: 18px 4px 16px;
+    margin-right: 40px;
+    cursor: pointer;
+    letter-spacing: 0.04em;
+    transition: color 0.25s ease;
+  }
+  .SYZM_tab::after {
+    content: ""; position: absolute; left: 0; right: 0; bottom: -1px;
+    height: 2px; background: var(--syzm-accent);
+    transform: scaleX(0); transform-origin: left;
+    transition: transform 0.28s ease;
+  }
+  .SYZM_tab:hover { color: var(--syzm-text); }
+  .SYZM_tab.SYZM_is-active { color: var(--syzm-accent); font-weight: 600; }
+  .SYZM_tab.SYZM_is-active::after { transform: scaleX(1); }
+  .SYZM_tab:focus-visible { outline: 2px solid var(--syzm-accent); outline-offset: 4px; }
+
+  /* 内容面板 */
+  .SYZM_tab_panel { padding-top: 8px; }
+  .SYZM_tab_panel.SYZM_is-active { animation: SYZM_fade 0.4s ease both; }
+  @keyframes SYZM_fade {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: none; }
+  }
+  .SYZM_list { list-style: none; }
+  .SYZM_item {
+    display: grid; grid-template-columns: 72px 1fr; gap: 24px;
+    padding: 28px 0;
+    border-bottom: 1px solid var(--syzm-rule);
+  }
+  .SYZM_item:last-child { border-bottom: 0; }
+  .SYZM_item_num {
+    font-family: 'Fraunces', serif; font-size: 1rem; font-weight: 600;
+    color: var(--syzm-accent); letter-spacing: 0.08em;
+    padding-top: 6px;
+  }
+  .SYZM_item_headline {
+    font-family: 'Fraunces', serif; font-size: 1.45rem;
+    font-weight: 400; line-height: 1.35; letter-spacing: -0.01em;
+  }
+  .SYZM_item_headline a { color: inherit; text-decoration: none; }
+  .SYZM_item_headline a:hover { color: var(--syzm-accent); }
+  .SYZM_item_meta {
+    margin-top: 10px;
+    font-size: 0.82rem; letter-spacing: 0.06em; color: var(--syzm-muted);
+  }
+  .SYZM_item_summary {
+    margin-top: 10px; max-width: 62ch;
+    font-size: 0.94rem; line-height: 1.7; color: #3A3A4A;
+  }
+
+  .SYZM_footer {
+    padding: 28px 0 40px; border-top: var(--syzm-outline);
+    display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap;
+    font-family: 'Fraunces', serif; font-size: 0.88rem; color: var(--syzm-muted);
+  }
+  .SYZM_footer a { color: var(--syzm-muted); text-decoration: none; border-bottom: 1px solid var(--syzm-rule); }
+  .SYZM_footer a:hover { color: var(--syzm-accent); }
+
+  @media (max-width: 640px) {
+    body { padding: 0 20px; }
+    .SYZM_tab { font-size: 1rem; margin-right: 24px; }
+    .SYZM_item { grid-template-columns: 1fr; gap: 6px; }
+    .SYZM_item_num { padding-top: 0; }
+  }
+</style>
+</head>
+<body>
+
+<header class="SYZM_topbar">
+  <span class="SYZM_topbar_num">03 · tabs</span>
+  <a class="SYZM_back" href="index.html">← 返回首页</a>
+</header>
+
+<main class="SYZM_main">
+  <div class="SYZM_label">Tab component · 可复用组件</div>
+  <h1 class="SYZM_title">今天的 <em>新闻</em></h1>
+
+  <!-- 选项卡分组：同一页面可复制多份，data-syzm-tabs 标记分组 -->
+  <div class="SYZM_tabs" data-syzm-tabs role="tablist" aria-label="新闻分类">
+    <button class="SYZM_tab SYZM_is-active" type="button" role="tab"
+            data-syzm-tab="domestic" aria-selected="true" aria-controls="SYZM_panel_domestic">国内新闻</button>
+    <button class="SYZM_tab" type="button" role="tab"
+            data-syzm-tab="provincial" aria-selected="false" aria-controls="SYZM_panel_provincial" tabindex="-1">省内新闻</button>
+    <button class="SYZM_tab" type="button" role="tab"
+            data-syzm-tab="international" aria-selected="false" aria-controls="SYZM_panel_international" tabindex="-1">国际新闻</button>
+    <button class="SYZM_tab" type="button" role="tab"
+            data-syzm-tab="hottest" aria-selected="false" aria-controls="SYZM_panel_hottest" tabindex="-1">最热新闻</button>
+  </div>
+
+  <!-- 国内新闻：默认选项 -->
+  <section class="SYZM_tab_panel SYZM_is-active" id="SYZM_panel_domestic" data-syzm-panel="domestic" role="tabpanel">
+    <ul class="SYZM_list">
+      <li class="SYZM_item">
+        <span class="SYZM_item_num">01</span>
+        <div>
+          <h2 class="SYZM_item_headline"><a href="#">全国秋粮收购进度过半，主产区仓储能力同步扩容</a></h2>
+          <div class="SYZM_item_meta">新华社 · 今日 08:20</div>
+          <p class="SYZM_item_summary">各地粮食部门陆续开放预约售粮通道，烘干与仓储设施提前检修完毕，农户可在手机上完成排队与结算。</p>
+        </div>
+      </li>
+      <li class="SYZM_item">
+        <span class="SYZM_item_num">02</span>
+        <div>
+          <h2 class="SYZM_item_headline"><a href="#">多地上线医保电子凭证新功能，异地结算范围再扩大</a></h2>
+          <div class="SYZM_item_meta">人民日报 · 今日 07:45</div>
+          <p class="SYZM_item_summary">参保人可在手机端直接调取凭证完成挂号、结算与购药，跨省门诊慢特病病种目录同步更新。</p>
+        </div>
+      </li>
+      <li class="SYZM_item">
+        <span class="SYZM_item_num">03</span>
+        <div>
+          <h2 class="SYZM_item_headline"><a href="#">城市地下管网改造进入收官阶段，多地同步排查老旧管线</a></h2>
+          <div class="SYZM_item_meta">央视新闻 · 昨日 21:10</div>
+          <p class="SYZM_item_summary">施工采用非开挖修复工艺，减少道路开挖面积，部分路段夜间作业以降低对通行的影响。</p>
+        </div>
+      </li>
+    </ul>
+  </section>
+
+  <!-- 省内新闻 -->
+  <section class="SYZM_tab_panel" id="SYZM_panel_provincial" data-syzm-panel="provincial" role="tabpanel" hidden>
+    <ul class="SYZM_list">
+      <li class="SYZM_item">
+        <span class="SYZM_item_num">01</span>
+        <div>
+          <h2 class="SYZM_item_headline"><a href="#">省级重点实验室开放日启动，二十余家高校院所同步预约</a></h2>
+          <div class="SYZM_item_meta">省报 · 今日 09:00</div>
+          <p class="SYZM_item_summary">活动面向中学生与社区居民，安排实验演示、科普讲座与科研仪器参观，预约名额按批次释放。</p>
+        </div>
+      </li>
+      <li class="SYZM_item">
+        <span class="SYZM_item_num">02</span>
+        <div>
+          <h2 class="SYZM_item_headline"><a href="#">县域冷链物流中心投入运营，生鲜配送半径缩短至两小时</a></h2>
+          <div class="SYZM_item_meta">省电视台 · 昨日 19:30</div>
+          <p class="SYZM_item_summary">中心配备预冷、分拣与冷藏运输车辆，覆盖周边多个乡镇，果蔬损耗率预计明显下降。</p>
+        </div>
+      </li>
+      <li class="SYZM_item">
+        <span class="SYZM_item_num">03</span>
+        <div>
+          <h2 class="SYZM_item_headline"><a href="#">省内首个社区嵌入式养老服务站试运行</a></h2>
+          <div class="SYZM_item_meta">民政厅 · 昨日 15:00</div>
+          <p class="SYZM_item_summary">服务站提供日间照料、助餐与康复训练，居民可在社区窗口完成建档与补贴申请。</p>
+        </div>
+      </li>
+    </ul>
+  </section>
+
+  <!-- 国际新闻 -->
+  <section class="SYZM_tab_panel" id="SYZM_panel_international" data-syzm-panel="international" role="tabpanel" hidden>
+    <ul class="SYZM_list">
+      <li class="SYZM_item">
+        <span class="SYZM_item_num">01</span>
+        <div>
+          <h2 class="SYZM_item_headline"><a href="#">多国联合发布海洋塑料治理行动清单</a></h2>
+          <div class="SYZM_item_meta">路透社 · 今日 06:30</div>
+          <p class="SYZM_item_summary">清单聚焦港口回收设施、渔船废弃物管理与跨境监测数据共享，并设定了阶段性评估节点。</p>
+        </div>
+      </li>
+      <li class="SYZM_item">
+        <span class="SYZM_item_num">02</span>
+        <div>
+          <h2 class="SYZM_item_headline"><a href="#">国际油价小幅调整，市场关注后续供应节奏</a></h2>
+          <div class="SYZM_item_meta">彭博社 · 昨日 22:15</div>
+          <p class="SYZM_item_summary">分析机构认为短期库存变化与运输成本是主要变量，炼厂开工率成为观察窗口。</p>
+        </div>
+      </li>
+      <li class="SYZM_item">
+        <span class="SYZM_item_num">03</span>
+        <div>
+          <h2 class="SYZM_item_headline"><a href="#">欧洲多城试行夜间公交线路扩容</a></h2>
+          <div class="SYZM_item_meta">法新社 · 昨日 18:40</div>
+          <p class="SYZM_item_summary">试行方案延长运营时段并加密班次，同步评估噪音与能耗数据后再决定是否常态化。</p>
+        </div>
+      </li>
+    </ul>
+  </section>
+
+  <!-- 最热新闻 -->
+  <section class="SYZM_tab_panel" id="SYZM_panel_hottest" data-syzm-panel="hottest" role="tabpanel" hidden>
+    <ul class="SYZM_list">
+      <li class="SYZM_item">
+        <span class="SYZM_item_num">01</span>
+        <div>
+          <h2 class="SYZM_item_headline"><a href="#">校园食堂推出小份菜窗口，剩餐量一周下降三成</a></h2>
+          <div class="SYZM_item_meta">热度 9.8 · 三小时前</div>
+          <p class="SYZM_item_summary">学生可按需选择半份主食与小份配菜，食堂同步公示每日剩餐数据，采购量按周调整。</p>
+        </div>
+      </li>
+      <li class="SYZM_item">
+        <span class="SYZM_item_num">02</span>
+        <div>
+          <h2 class="SYZM_item_headline"><a href="#">老式座机重新走红，二手市场成交量翻倍</a></h2>
+          <div class="SYZM_item_meta">热度 9.2 · 五小时前</div>
+          <p class="SYZM_item_summary">买家多为追求桌面简洁的年轻人，维修店顺势推出改装与保养服务，部分型号价格上涨。</p>
+        </div>
+      </li>
+      <li class="SYZM_item">
+        <span class="SYZM_item_num">03</span>
+        <div>
+          <h2 class="SYZM_item_headline"><a href="#">城市公园开放夜跑路线，智能灯杆同步上线</a></h2>
+          <div class="SYZM_item_meta">热度 8.9 · 昨日</div>
+          <p class="SYZM_item_summary">路线沿途设置照明与紧急呼叫点位，跑者可扫码查看配速与路段拥挤度。</p>
+        </div>
+      </li>
+    </ul>
+  </section>
+</main>
+
+<footer class="SYZM_footer">
+  <span>tab component · reusable via <a href="js/SYZM_tabs.js">js/SYZM_tabs.js</a></span>
+  <a href="index.html">返回首页</a>
+</footer>
+
+<script src="js/SYZM_tabs.js" defer></script>
+</body>
+</html>
