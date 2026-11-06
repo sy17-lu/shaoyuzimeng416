@@ -1,8 +1,11 @@
 # 敏感凭据（绝不入库）
 .gitee_token
 
-# 提示词日志：含明文令牌，仅本地保留
-syzm_prompt.md
+# Swiper 官方 npm 包（仅供本地查阅示例，体积大不入库）
+swiper/
+
+# 本地临时备份页面
+index1.html
 
 # 嵌套 git 仓库（另有独立远端，已推送至 Gitee）
 lusyzm/
