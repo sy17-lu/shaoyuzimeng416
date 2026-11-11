@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI 提示词记录 · Swiper 课堂任务</title>
+<!--
+  作者：邵玉紫檬
+  建立时间：2026-11-11
+  使用大模型：DeepSeek-V4.1-Flash
+  功能名称：Swiper 课堂任务的 AI 提示词记录页
+-->
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: "Microsoft YaHei", "PingFang SC", system-ui, sans-serif;
+    background: #f6f8fc; color: #1f2937; line-height: 1.9;
+  }
+  .SYZM_wrap { max-width: 960px; margin: 0 auto; padding: 36px 20px 70px; }
+
+  .SYZM_head {
+    background: linear-gradient(135deg, #0f2b5b, #1d5bbf);
+    border-radius: 18px; padding: 32px 34px; color: #fff;
+    box-shadow: 0 12px 30px rgba(15, 43, 91, .3);
+  }
+  .SYZM_badge {
+    display: inline-block; padding: 4px 13px; border-radius: 999px;
+    background: rgba(255, 255, 255, .14); border: 1px solid rgba(255, 255, 255, .3);
+    font-size: 12.5px; letter-spacing: 2px; margin-bottom: 12px;
+  }
+  .SYZM_head h1 { font-size: 27px; letter-spacing: .5px; }
+  .SYZM_head p { margin-top: 10px; font-size: 14px; color: #d9e3f5; }
+
+  .SYZM_nav { display: flex; flex-wrap: wrap; gap: 8px; margin: 18px 0 22px; }
+  .SYZM_nav a {
+    text-decoration: none; font-size: 13.5px; color: #1d5bbf; background: #fff;
+    border: 1px solid #c7d8f8; border-radius: 999px; padding: 7px 16px; transition: all .2s;
+  }
+  .SYZM_nav a:hover { background: #1d5bbf; color: #fff; border-color: transparent; }
+
+  .SYZM_card {
+    background: #fff; border: 1px solid #e8edf7; border-radius: 16px;
+    padding: 24px 26px 20px; margin-bottom: 20px; box-shadow: 0 5px 18px rgba(15, 43, 91, .06);
+  }
+  .SYZM_card h2 { font-size: 18.5px; color: #0f2b5b; margin-bottom: 4px; }
+  .SYZM_card .SYZM_sub { font-size: 12.5px; color: #949cb0; margin-bottom: 14px; }
+
+  .SYZM_label {
+    display: inline-block; font-size: 12.5px; font-weight: 700; color: #bf7a00;
+    background: #fff4dd; border-radius: 6px; padding: 3px 10px; margin: 8px 0 8px;
+  }
+  .SYZM_label.SYZM_ok { color: #2f8f3a; background: #e7f6e8; }
+  .SYZM_label.SYZM_info { color: #1d5bbf; background: #eaf2ff; }
+
+  .SYZM_quote {
+    font-size: 14px; color: #3f4756; background: #fbfcfe; border-left: 3px solid #c7d8f8;
+    border-radius: 0 8px 8px 0; padding: 12px 16px; margin-bottom: 10px;
+  }
+  .SYZM_quote code { background: #eaf2ff; color: #1d5bbf; padding: 1px 6px; border-radius: 4px; font-family: Consolas, monospace; font-size: 12.5px; }
+
+  pre.SYZM_code {
+    background: #fdf5c9; color: #4b4b3a; border-radius: 10px; padding: 14px 16px;
+    font-family: Consolas, "Courier New", monospace; font-size: 12.8px; line-height: 1.9;
+    white-space: pre; overflow-x: auto; margin-bottom: 10px;
+  }
+  pre.SYZM_code.SYZM_good { background: #e9f6e9; color: #2b4a2f; }
+
+  .SYZM_note { font-size: 13.5px; color: #4b5563; margin-bottom: 6px; }
+  .SYZM_note b { color: #0f2b5b; }
+  .SYZM_note em { color: #d32f2f; font-style: normal; font-weight: 700; }
+
+  /* 成果截图：点图可在新窗口打开原图 */
+  .SYZM_shots { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; margin-top: 12px; }
+  .SYZM_shot a { display: block; }
+  .SYZM_shot img {
+    width: 100%; display: block; border: 1px solid #e5e7eb; border-radius: 10px;
+    transition: transform .2s, box-shadow .2s;
+  }
+  .SYZM_shot a:hover img { transform: translateY(-2px); box-shadow: 0 8px 18px rgba(15, 43, 91, .16); }
+  .SYZM_shot figcaption { font-size: 12.5px; color: #8b93a7; margin-top: 6px; text-align: center; }
+  .SYZM_jump { font-size: 12.5px; margin-top: 10px; }
+  .SYZM_jump a { color: #1d5bbf; text-decoration: none; font-weight: 700; }
+  .SYZM_jump a:hover { text-decoration: underline; }
+
+  .SYZM_back { text-align: center; margin-top: 26px; }
+  .SYZM_back a {
+    display: inline-block; text-decoration: none; color: #0f2b5b; font-size: 14.5px;
+    font-weight: bold; background: #fff; border: 1px solid #dbe4ff; border-radius: 999px;
+    padding: 10px 26px; transition: transform .2s, box-shadow .2s;
+  }
+  .SYZM_back a:hover { transform: translateY(-2px); box-shadow: 0 8px 18px rgba(15, 43, 91, .15); }
+
+  .SYZM_foot { text-align: center; margin-top: 30px; color: #9ca3af; font-size: 12.5px; }
+
+  @media (max-width: 620px) {
+    .SYZM_head { padding: 24px 20px; }
+    .SYZM_card { padding: 18px 16px; }
+    .SYZM_head h1 { font-size: 22px; }
+  }
+</style>
+</head>
+<body>
+<div class="SYZM_wrap">
+
+  <header class="SYZM_head">
+    <span class="SYZM_badge">PROMPT LOG · A I  协 作 记 录</span>
+    <h1>我写给 AI 的提示词</h1>
+    <p>页面：swiper-task.html　｜　作者：邵玉紫檬　｜　模型：DeepSeek-V4.1-Flash　｜　建立时间：2026-11-11</p>
+  </header>
+
+  <nav class="SYZM_nav" id="SYZM_nav">
+    <a href="#SYZM_t1">任务一 · 两轮迭代</a>
+    <a href="#SYZM_t2">任务二 · creative 电影墙</a>
+    <a href="#SYZM_t3a">任务三① · 第六件展品配图</a>
+    <a href="#SYZM_t3b">任务三② · keyboard 键盘控制</a>
+  </nav>
+
+  <!-- 任务一 · 两轮迭代 -->
+  <section class="SYZM_card" id="SYZM_t1">
+    <h2>任务一 · 提示词工程师（两轮迭代）</h2>
+    <div class="SYZM_sub">目标：生成 new Swiper('#wySw4', {...})，满足 4 条需求</div>
+
+    <span class="SYZM_label">第 1 轮提示词（有遗漏）</span>
+    <div class="SYZM_quote">帮我写一个 Swiper 初始化代码，选择器是 <code>#wySw4</code>，要求：循环、3.2 秒自动播放、分页器可以点击，效果是 cube。</div>
+    <span class="SYZM_label SYZM_info">AI 第 1 次回答</span>
+<pre class="SYZM_code">new Swiper('#wySw4', {
+  loop: true,
+  effect: 'cube',
+  autoplay: { delay: 3200 },
+  pagination: { clickable: true }
+});</pre>
+    <p class="SYZM_note">验证后发现：只写了 <code>clickable</code> 没写 <code>el</code>，<em>页面上一个圆点都没渲染</em>；也没写 <code>speed</code>，切换动画用的是默认 300ms。</p>
+
+    <span class="SYZM_label SYZM_ok">第 2 轮提示词（逐条对齐参数名）</span>
+    <div class="SYZM_quote">请生成 Swiper 配置，选择器 <code>#wySw4</code>，逐条满足：1）<code>loop</code> 设为 <code>true</code> 表示无缝循环；2）<code>autoplay.delay</code> 为 3200 毫秒，且 <code>disableOnInteraction</code> 设为 <code>false</code>（用户拖动后自动播放继续）；3）<code>pagination</code> 的 <code>el</code> 是 <code>#wyPag4</code>，且 <code>clickable</code> 设为 <code>true</code>；4）初始 <code>effect</code> 设为 <code>'cube'</code>；5）<code>speed</code> 设为 800。</div>
+    <span class="SYZM_label SYZM_ok">AI 第 2 次回答（即页面中实际运行的配置）</span>
+<pre class="SYZM_code SYZM_good">new Swiper('#wySw4', {
+  loop: true,
+  effect: 'cube',
+  speed: 800,
+  autoplay: { delay: 3200, disableOnInteraction: false },
+  pagination: { el: '#wyPag4', clickable: true }
+});</pre>
+    <p class="SYZM_note"><b>关键差别：</b>第 1 轮用自然语言描述，第 2 轮把每条需求拆成"编号 → 参数名 → 期望值"，AI 就没法漏项。</p>
+  </section>
+
+  <!-- 任务二 · creative -->
+  <section class="SYZM_card" id="SYZM_t2">
+    <h2>任务二 · creative 仿写：课堂没讲的效果</h2>
+    <div class="SYZM_sub">目标：读懂官方 creative 示例，为演示四写第 7 种效果「电影墙」</div>
+
+    <span class="SYZM_label">提示词</span>
+    <div class="SYZM_quote">打开 swiper/demo/257-effect-creative.html，读懂 <code>creativeEffect</code> 里 <code>prev</code> / <code>next</code> 的 transform 写法，说明每个字段控制什么；然后为演示四写第 7 种效果「creative 电影墙」：上一张缩小、左移、带角度，下一张放大右移进场。</div>
+
+    <span class="SYZM_label SYZM_info">AI 回答要点</span>
+<pre class="SYZM_code SYZM_good">creativeEffect: {
+  prev: { shadow: true, translate: ['-35%', 0, -220], rotate: [0, 18, 0], scale: 0.78, opacity: 0.85 },
+  next: { shadow: true, translate: ['100%', 0, 0], scale: 1.18 }
+}</pre>
+    <p class="SYZM_note"><b>怎么读：</b><code>prev</code> / <code>next</code> 描述的是"这张幻灯片待在左侧 / 右侧等待区时的形态"，切换动画就是在"等待区形态"和"当前位"之间插值；<code>translate</code> 三项是 <code>[x%, y%, z像素]</code>。</p>
+  </section>
+
+  <!-- 任务三① 生图 -->
+  <section class="SYZM_card" id="SYZM_t3a">
+    <h2>任务三① · 第六件展品「爱达·魔都号」配图</h2>
+    <div class="SYZM_sub">目标：AI 生成一张横版 16:9 的展品图，供四个演示台共用</div>
+
+    <span class="SYZM_label">生图提示词</span>
+    <div class="SYZM_quote">横向 16:9 写实照片：首艘国产大型邮轮「爱达·魔都号」在开阔海面上航行，蓝白船体、多层甲板与彩色船身彩绘，清晨侧逆光，海面有细碎反光，天空留出空间，画面干净、有电影感，无水印无文字。</div>
+    <p class="SYZM_note"><b>产出：</b><code>swiper-imgs/aida_modu_1.jpg</code>，尺寸 2560×1440（正好 16:9），四个演示台各插入一张结构完整的 <code>swiper-slide</code>。</p>
+
+    <div class="SYZM_shots">
+      <figure class="SYZM_shot">
+        <a href="swiper-imgs/aida_modu_1.jpg" target="_blank" rel="noopener">
+          <img src="swiper-imgs/aida_modu_1.jpg" alt="AI 生成的爱达·魔都号 16:9 展品图">
+        </a>
+        <figcaption>AI 生成的原图 · 2560×1440 · 点击在新窗口查看</figcaption>
+      </figure>
+    </div>
+    <div class="SYZM_jump"><a href="#SYZM_nav">↑ 回到顶部导航</a>　·　<a href="swiper-task.html" target="_blank" rel="noopener">在任务页中查看该幻灯片 →</a></div>
+  </section>
+
+  <!-- 任务三② keyboard -->
+  <section class="SYZM_card" id="SYZM_t3b">
+    <h2>任务三② · 课堂没讲的 Swiper 能力：keyboard 键盘控制</h2>
+    <div class="SYZM_sub">四选一：keyboard / mousewheel / zoom / parallax</div>
+
+    <span class="SYZM_label">我的要求</span>
+    <div class="SYZM_quote">挑一个课堂上没讲过的 Swiper 能力加上去：keyboard 键盘控制 / mousewheel 滚轮 / zoom 双击缩放 / parallax 视差，任选其一，AI 可用。要求：不要影响页面本身的滚动，只有轮播在视口里的时候才响应按键。</div>
+
+    <span class="SYZM_label SYZM_info">为什么选 keyboard</span>
+    <p class="SYZM_note">mousewheel 会抢走整页滚动，长页面里体验很差；zoom 要配合双击 / 双指手势，演示成本高；parallax 需要多层背景图，现成素材不够。keyboard 一条配置就能演示，而且有真实使用场景（大屏展馆、无障碍访问）。</p>
+
+    <span class="SYZM_label SYZM_ok">落地代码（演示一 #wySw1）</span>
+<pre class="SYZM_code SYZM_good">var swiper = new Swiper("#wySw1", {
+  keyboard: {
+    enabled: true,          // 开启键盘控制
+    onlyInViewport: true,   // 只有轮播出现在视口内时才响应，避免抢占页面滚动
+  },
+});</pre>
+    <p class="SYZM_note"><b>实测：</b>连按两次 <code>→</code>，<code>activeIndex</code> 由 0 变 2；轮播滚出视口后按键不再响应。</p>
+
+    <div class="SYZM_shots">
+      <figure class="SYZM_shot">
+        <a href="swiper-shots/07-键盘操作前.png" target="_blank" rel="noopener">
+          <img src="swiper-shots/07-键盘操作前.png" alt="按方向键之前，activeIndex = 0">
+        </a>
+        <figcaption>按方向键之前 · activeIndex = 0（天宫空间站）· 点击看原图</figcaption>
+      </figure>
+      <figure class="SYZM_shot">
+        <a href="swiper-shots/08-键盘操作后.png" target="_blank" rel="noopener">
+          <img src="swiper-shots/08-键盘操作后.png" alt="连按两次右方向键之后，activeIndex = 2">
+        </a>
+        <figcaption>连按两次 → 之后 · activeIndex = 2（C919 大飞机）· 点击看原图</figcaption>
+      </figure>
+    </div>
+    <div class="SYZM_jump"><a href="#SYZM_nav">↑ 回到顶部导航</a>　·　<a href="swiper-task.html" target="_blank" rel="noopener">在任务页中查看演示一 →</a></div>
+  </section>
+
+  <div class="SYZM_back"><a href="swiper-task.html">← 返回任务页</a></div>
+  <div class="SYZM_foot">AI 提示词记录 · 高级网页设计 · 2026-2027-1</div>
+</div>
+</body>
+</html>

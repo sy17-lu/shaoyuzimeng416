@@ -26,6 +26,17 @@
   .wy-rule b{color:#b45309}
   .wy-rule code{background:#fef3c7;color:#92400e;padding:1px 7px;border-radius:5px;font-family:Consolas,monospace;font-size:13px}
 
+  /* 提示词记录入口 */
+  .wy-doclink{margin:0 0 22px}
+  .wy-doclink a,.wy-inlink a{
+    display:inline-flex;align-items:center;gap:8px;text-decoration:none;font-size:14px;font-weight:bold;
+    color:#0f2b5b;background:#fff;border:1.5px solid #c7d8f8;border-radius:999px;padding:10px 22px;
+    transition:all .2s;
+  }
+  .wy-doclink a:hover,.wy-inlink a:hover{background:linear-gradient(135deg,#0f2b5b,#1d5bbf);color:#fff;border-color:transparent;transform:translateY(-2px)}
+  .wy-inlink{margin-top:14px}
+  .wy-inlink a{font-size:13px;padding:7px 16px}
+
   /* 章节 */
   .wy-sec{background:#fff;border-radius:18px;padding:28px 30px;margin-bottom:26px;border:1px solid #e8ecf5;box-shadow:0 4px 14px rgba(31,41,55,.06);position:relative;overflow:hidden}
   .wy-sec::before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:linear-gradient(#0f2b5b,#1d5bbf)}
@@ -80,6 +91,30 @@
   .wy-back a{display:inline-block;text-decoration:none;color:#0f2b5b;font-size:14.5px;font-weight:bold;background:#fff;border:1px solid #dbe4ff;border-radius:999px;padding:10px 26px;transition:transform .2s,box-shadow .2s}
   .wy-back a:hover{transform:translateY(-2px);box-shadow:0 8px 18px rgba(15,43,91,.15)}
 
+  /* ── 任务一 · 提示词工程师卡片 ── */
+  .wy-pt{background:#fff;border:1px solid #e8edf7;border-radius:14px;padding:26px 28px 22px;box-shadow:0 6px 22px rgba(15,43,91,.06);margin:0 0 26px}
+  .wy-pt-head{display:flex;align-items:flex-start;gap:13px;margin-bottom:16px}
+  .wy-pt-icon{flex:0 0 auto;width:44px;height:44px;border-radius:10px;background:linear-gradient(135deg,#1d5bbf,#0f2b5b);color:#fff;font-size:20px;display:flex;align-items:center;justify-content:center}
+  .wy-pt-title{font-size:19px;font-weight:800;color:#111827;letter-spacing:.5px;line-height:1.4}
+  .wy-pt-sub{font-size:13px;color:#949cb0;margin-top:4px;letter-spacing:.4px}
+  .wy-pt-goal{font-size:14.5px;color:#374151;line-height:2;margin-bottom:18px}
+  .wy-pt-goal code{background:#eaf2ff;color:#1d5bbf;border-radius:4px;padding:1px 5px;font-family:Consolas,monospace;font-size:13px}
+  .wy-pt-round{border:1.6px dashed #f0b429;background:#fffdf6;border-radius:10px;padding:16px 18px 18px;margin-bottom:16px}
+  .wy-pt-round.good{border-color:#66bb6a;background:#f7fdf7}
+  .wy-pt-label{font-size:13.5px;font-weight:800;color:#bf7a00;margin-bottom:10px}
+  .wy-pt-round.good .wy-pt-label{color:#2f8f3a}
+  .wy-pt-quote{font-size:14px;color:#4b5563;line-height:1.95;margin-bottom:14px}
+  .wy-pt-quote code{background:#eaf2ff;color:#1d5bbf;border-radius:4px;padding:1px 5px;font-family:Consolas,monospace;font-size:13px}
+  .wy-pt-ai{font-size:13.5px;font-weight:800;color:#6b4b2a;margin-bottom:8px}
+  .wy-pt-round.good .wy-pt-ai{color:#2f8f3a}
+  .wy-pt-code{background:#fdf5c9;border-radius:8px;padding:14px 16px;margin:0;font-family:Consolas,"Courier New",monospace;font-size:13px;line-height:1.9;color:#4b4b3a;white-space:pre;overflow-x:auto}
+  .wy-pt-round.good .wy-pt-code{background:#e9f6e9;color:#2b4a2f}
+  .wy-pt-issue{font-size:13.5px;color:#d32f2f;line-height:2;margin-top:14px;font-weight:700}
+  .wy-pt-issue code{background:#fdeaea;color:#d32f2f;border-radius:4px;padding:1px 5px;font-family:Consolas,monospace;font-size:12.5px;font-weight:700}
+  .wy-pt-shot{margin:16px 0 2px}
+  .wy-pt-shot img{width:100%;display:block;border:1px solid #e5e7eb;border-radius:10px}
+  .wy-pt-shot figcaption{font-size:12.5px;color:#8b93a7;line-height:1.9;margin-top:8px;text-align:center}
+
   footer{text-align:center;margin-top:34px;color:#9ca3af;font-size:13px;line-height:2}
 </style>
 </head>
@@ -100,6 +135,57 @@
     ② 每个"演示台"下面的绿色卡片就是该任务的要求，JS 代码统一写在页面最底部的 <code>&lt;script&gt;</code> 区域内；<br>
     ③ 每完成一个任务就<b>刷新页面验证</b>：能拖、能点、会自己翻，才算通过；<br>
     ④ 控制台（F12）报错是你要最好的朋友——先读报错，再改代码。
+  </div>
+
+  <div class="wy-doclink">
+    <a href="swiper-prompts.html" target="_blank" rel="noopener">📄 查看我写给 AI 的全部提示词（新窗口打开）</a>
+  </div>
+
+  <!-- 任务一 · 提示词工程师（不写代码，写提示词：两轮迭代记录） -->
+  <div class="wy-pt">
+    <div class="wy-pt-head">
+      <span class="wy-pt-icon">⭐</span>
+      <div>
+        <div class="wy-pt-title">任务一 · 提示词工程师</div>
+        <div class="wy-pt-sub">让 AI 听懂需求 · 不写代码，写提示词</div>
+      </div>
+    </div>
+
+    <p class="wy-pt-goal">目标：让 AI 生成 <code>new Swiper('#wySw4', {...})</code> 配置，满足 4 个需求：<b>① 无缝循环</b> <b>② 3.2 秒自动翻页且手动操作后不停止</b> <b>③ 圆点分页器可点击</b> <b>④ 初始效果为 cube</b>。</p>
+
+    <div class="wy-pt-round">
+      <div class="wy-pt-label">📝 第一轮提示词（有遗漏）</div>
+      <div class="wy-pt-quote">“帮我写一个 Swiper 初始化代码，选择器是 <code>#wySw4</code>，要求：循环、3.2 秒自动播放、分页器可以点击，效果是 cube。”</div>
+      <div class="wy-pt-ai">🤖 AI 第一次回答（有错误）</div>
+<pre class="wy-pt-code">new Swiper('#wySw4', {
+  loop: true,
+  effect: 'cube',
+  autoplay: { delay: 3200 },
+  pagination: { clickable: true }
+});</pre>
+      <p class="wy-pt-issue">❌ 问题：漏了 <code>pagination.el = '#wyPag4'</code>（Swiper 找不到分页器容器，一个圆点都不会渲染）、漏了 <code>speed</code>（切换动画用的是默认 300ms，不是要求的 800ms）。</p>
+      <figure class="wy-pt-shot">
+        <img src="swiper-shots/05-错误配置效果.png" alt="第一轮配置的实际效果：圆点区域空白">
+        <figcaption>第一轮代码跑起来的真实效果 —— 圆点区域一片空白，读数条显示实际渲染出的圆点数量 = 0</figcaption>
+      </figure>
+    </div>
+
+    <div class="wy-pt-round good">
+      <div class="wy-pt-label">📝 第二轮提示词（修正后，说清楚每个需求）</div>
+      <div class="wy-pt-quote">“请生成 Swiper 配置，选择器 <code>#wySw4</code>，逐条满足：1）<code>loop</code> 设为 <code>true</code> 表示无缝循环；2）<code>autoplay.delay</code> 为 3200 毫秒，且 <code>disableOnInteraction</code> 设为 <code>false</code>（用户拖动后自动播放继续）；3）<code>pagination</code> 的 <code>el</code> 是 <code>#wyPag4</code>，且 <code>clickable</code> 设为 <code>true</code>（圆点可点击跳转）；4）初始 <code>effect</code> 设为 <code>'cube'</code>；5）<code>speed</code> 设为 800。”</div>
+      <div class="wy-pt-ai">🤖 AI 第二次回答（正确）</div>
+<pre class="wy-pt-code">new Swiper('#wySw4', {
+  loop: true,
+  effect: 'cube',
+  speed: 800,
+  autoplay: { delay: 3200, disableOnInteraction: false },
+  pagination: { el: '#wyPag4', clickable: true }
+});</pre>
+      <figure class="wy-pt-shot">
+        <img src="swiper-shots/06-正确配置效果.png" alt="第二轮配置的实际效果：6 个圆点可点击">
+        <figcaption>第二轮代码跑起来的真实效果 —— 6 个圆点全部渲染出来，当前页高亮，且可以点击跳转</figcaption>
+      </figure>
+    </div>
   </div>
 
   <!-- 任务 1 -->
@@ -127,6 +213,24 @@
             <div class="swiper-slide"><img src="swiper-imgs/aida_modu_1.jpg" alt="爱达·魔都号"><div class="wy-cap"><h3>爱达·魔都号</h3><p>2024 年 1 月首航 · 首艘国产大型邮轮</p></div></div>
           </div>
         </div>
+      </div>
+    </div>
+    <!-- 任务三②：课堂没讲的 Swiper 能力 · keyboard 键盘控制 -->
+    <div class="wy-req">
+      <h3>⌨️ 课堂外能力 · keyboard 键盘控制（任务三②）</h3>
+      <p>演示一在初始化时多挂了一个 <code>keyboard</code> 模块：<code>enabled: true</code> 打开键盘控制；<code>onlyInViewport: true</code> 只在轮播出现在视口内时才响应，避免用户滚动页面时被"劫持"方向键。</p>
+      <p>操作：让演示一出现在屏幕里，按 <code>→</code> 前进一步、按 <code>←</code> 后退一步（也可以按 PageDown / PageUp）。</p>
+      <span class="wy-star">⭐ 验证标准：按方向键展品跟着换，且轮播不在视口内时不响应</span>
+      <figure class="wy-pt-shot">
+        <img src="swiper-shots/07-键盘操作前.png" alt="按方向键之前，activeIndex = 0，停在天宫空间站">
+        <figcaption>实测 · 还没按键 —— activeIndex = 0，停在第 1 件展品「天宫空间站」</figcaption>
+      </figure>
+      <figure class="wy-pt-shot">
+        <img src="swiper-shots/08-键盘操作后.png" alt="连按两次右方向键之后，activeIndex = 2，跳到 C919 大飞机">
+        <figcaption>实测 · 连按两次 → —— activeIndex = 2，画面跳到第 3 件展品「C919 大飞机」</figcaption>
+      </figure>
+      <div class="wy-inlink">
+        <a href="swiper-prompts.html#SYZM_t3b" target="_blank" rel="noopener">📄 这条能力的提示词记录（新窗口打开）</a>
       </div>
     </div>
   </div>
@@ -207,9 +311,9 @@
       <span class="wy-star">⭐ 验证标准：基础分——轮播自动翻页；进阶分——点 cube 按钮变 3D 立方体、点 fade 变淡入淡出</span>
     </div>
     <div class="wy-fx">
-      <button class="wy-on" data-fx="slide">slide 平推（默认·稳重）</button>
+      <button data-fx="slide">slide 平推（稳重）</button>
       <button data-fx="fade">fade 淡入淡出（优雅）</button>
-      <button data-fx="cube">cube 3D 立方体（炫酷）</button>
+      <button class="wy-on" data-fx="cube">cube 3D 立方体（默认·炫酷）</button>
       <button data-fx="coverflow">coverflow 画廊堆叠（沉浸）</button>
       <button data-fx="flip">flip 翻页（复古）</button>
       <button data-fx="cards">cards 卡片（俏皮）</button>
@@ -284,11 +388,11 @@ var swiper = new Swiper("#wySw2", {
   // ── 任务 4：初始化 #wySw4，循环 + 3.2 秒自动播放 + 圆点 + 初始 effect ──
   // 把多份效果都要复用的配置抽成对象，切换效果时原样保留
   var wySw4Config = {
-    loop: true,                                       // 无缝循环
-    effect: 'slide',                                  // 初始效果：平推
+    loop: true,                                       // ① 无缝循环
+    effect: 'cube',                                   // ④ 初始效果：3D 立方体
     speed: 800,                                       // 切换动画时长 800 毫秒
-    autoplay: { delay: 3200, disableOnInteraction: false },  // 每 3.2 秒自动翻页，拖动后继续
-    pagination: { el: '#wyPag4', clickable: true }    // 圆点分页器，可点击跳转
+    autoplay: { delay: 3200, disableOnInteraction: false },  // ② 每 3.2 秒自动翻页，手动拖动后不停止
+    pagination: { el: '#wyPag4', clickable: true }    // ③ 圆点分页器，可点击跳转
   };
   var wySw4 = new Swiper('#wySw4', wySw4Config);
 

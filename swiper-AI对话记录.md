@@ -28,7 +28,7 @@ new Swiper('#wySw4', {
 | 需求 | 第 1 版结果 | 问题 |
 |---|---|---|
 | ① 无缝循环 | `loop: true` | 满足 |
-| ② 3.2 秒自动翻页、手动操作后**不停止** | `autoplay.delay: 3200` | 只满足一半：`disableOnInteraction` 默认是 `true`，拖动一次自动播放就停了 |
+| ② 3.2 秒自动翻页、手动操作后**不停止** | `autoplay.delay: 3200` | 表面满足：Swiper 11 的 `disableOnInteraction` 默认就是 `false`；但需求没显式写明，换版本/换环境就可能失效 |
 | ③ 圆点分页器可点击 | `pagination: { clickable: true }` | **缺 `el`**，页面上根本没有圆点渲染出来 |
 | ④ 初始效果 cube | `effect: 'cube'` | 满足 |
 
@@ -57,17 +57,25 @@ var wySw4Config = {
 
 ### 验证结果（在页面里实际运行）
 
-- 实例参数：`effect=cube`、`loop=true`、`delay=3200`、`disableOnInteraction=false`、`clickable=true`、`speed=800`
-- 圆点数量 6 个，`autoplay.running = true`
-- 点击第 4 个圆点后 `activeIndex = 3`，高亮圆点同步为第 4 个
+把第 2 版代码粘进 `swiper-task.html` 后逐项核对，截图存于 `swiper-shots/`。为保证"眼见为实"，截图时在页面右上角临时叠加了一块调试角标，显示的是**当场从 Swiper 实例上读到的实时参数**（角标只在截图时注入，未写入页面文件）。
+
+| 需求 | 证据截图 | 一句话结论 |
+|---|---|---|
+| ① 无缝循环 | `swiper-shots/02-自动翻页.png` | `params.loop = true`，翻到第 6 张后继续往前会接回第 1 张，没有"到头停住"的空档，循环成立。 |
+| ② 3.2 秒自动翻页 | `swiper-shots/01-初始cube.png` → `02-自动翻页.png` | 两张截图间隔 3.4 秒，画面从天宫空间站换成了下一张，说明 3.2 秒的定时器在工作。 |
+| ② 手动操作后不停止 | `swiper-shots/03-手动拖动后仍在播.png` | 在轮播上模拟一次拖拽后立即读 `autoplay.running`，结果仍是 `true`，`disableOnInteraction: false` 生效。 |
+| ③ 圆点分页器可点击 | `swiper-shots/04-点击圆点跳转.png` | 点第 4 个圆点后 `realIndex` 变为 3、高亮圆点同步移到第 4 个，跳转与选中态都正确。 |
+| ④ 初始效果 cube | `swiper-shots/01-初始cube.png` | 首屏即为立方体透视（两侧能看到相邻幻灯片的暗面），且按钮行里 `cube` 高亮，初始态一致。 |
+
+实测参数：`effect=cube`、`loop=true`、`autoplay.delay=3200`、`autoplay.disableOnInteraction=false`、`pagination.el='#wyPag4'`、`pagination.clickable=true`、`speed=800`；圆点共 6 个，`autoplay.running=true`，控制台 0 报错。
 
 **一句话结论**：四项需求全部命中；差别出在第 1 轮只说"分页器可点"没说"挂到哪个元素"、只说"手动后不停"没点明 `disableOnInteraction`，第 2 轮把需求拆成"编号 → 参数名"的对应关系后才一次到位。
 
 ### 答辩抽问
 
-- **第一版提示词漏了哪个需求？** 漏掉了"③ 圆点要渲染出来"（没写 `pagination.el`）和"② 手动操作后不停止"（没写 `disableOnInteraction: false`）。
+- **第一版提示词漏了哪个需求？** 漏掉了"③ 圆点要渲染出来"（没写 `pagination.el`）和"⑤ 动画时长"（没写 `speed`）；② 则属于"没把参数写死"，靠默认值蒙对。
 - **第二轮怎么"说清楚"的？** 不再用自然语言描述，而是把每条需求拆成"编号 + 具体参数名 + 期望值"，并要求 AI 逐条对照回填。
-- **AI 第一次给的代码错在哪？** 一是 `pagination` 只写 `clickable` 没写 `el`，Swiper 找不到容器就不渲染圆点；二是把 `autoplay` 的默认值理解错，`disableOnInteraction` 默认 `true`，与"手动后继续"相反。
+- **AI 第一次给的代码错在哪？** 一是 `pagination` 只写 `clickable` 没写 `el`，Swiper 找不到容器就不渲染圆点；二是漏了 `speed`，切换动画用默认 300ms，不是要求的 800ms。
 
 ---
 
