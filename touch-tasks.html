@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>任务 · 触摸事件</title>
+<!--
+  作者：邵玉紫檬
+  建立时间：2026-11-18
+  使用大模型：DeepSeek-V4.1-Flash
+  功能名称：触摸事件四项任务入口汇总页（探针 / 手势卡片 / 图片查看器 / 摇一摇）
+-->
+<link rel="stylesheet" href="cdn/fonts/fonts.css">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Inter', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+    background: #F2EFE8; color: #1A1A2E;
+    min-height: 100vh; padding: 0 20px 48px;
+  }
+  .SYZM_bar {
+    display: flex; justify-content: space-between; align-items: center; gap: 14px;
+    max-width: 900px; margin: 0 auto; padding: 22px 0 12px; border-bottom: 1px solid #1A1A2E;
+  }
+  .SYZM_mark {
+    font-family: 'Fraunces', serif; font-size: .86rem; font-weight: 600;
+    letter-spacing: .1em; color: #D90429;
+  }
+  .SYZM_back {
+    font-family: 'Fraunces', serif; font-size: .86rem; text-decoration: none;
+    color: #1A1A2E; border-bottom: 1px solid #1A1A2E; padding-bottom: 2px;
+  }
+
+  .SYZM_main { max-width: 900px; margin: 0 auto; padding-top: 34px; }
+  .SYZM_label { font-size: .78rem; letter-spacing: .2em; text-transform: uppercase; color: #6B6B7A; }
+  .SYZM_title {
+    font-family: 'Fraunces', serif; font-weight: 300; letter-spacing: -.02em;
+    font-size: clamp(2.1rem, 7vw, 3.2rem); line-height: 1.05; margin: 14px 0 16px;
+  }
+  .SYZM_title em { font-style: italic; font-weight: 600; color: #D90429; }
+  .SYZM_sub { font-size: .9rem; color: #6B6B7A; line-height: 1.95; max-width: 620px; }
+
+  .SYZM_grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 18px; margin-top: 32px;
+  }
+  .SYZM_item {
+    display: flex; flex-direction: column; justify-content: space-between; gap: 18px;
+    padding: 26px 24px 22px; background: #FAF8F3; border: 1px solid #1A1A2E;
+    text-decoration: none; color: #1A1A2E;
+    transition: transform .22s ease, background .22s ease, color .22s ease;
+  }
+  .SYZM_item:hover { transform: translateY(-4px); background: #1A1A2E; color: #F2EFE8; }
+  .SYZM_item:hover .SYZM_desc { color: rgba(242, 239, 232, .78); }
+  .SYZM_item:hover .SYZM_no { color: #F2EFE8; }
+  .SYZM_item:hover .SYZM_go { color: #F2EFE8; border-color: rgba(242, 239, 232, .6); }
+  .SYZM_no {
+    font-family: 'Fraunces', serif; font-size: 1.15rem; font-weight: 600;
+    letter-spacing: .08em; color: #D90429;
+  }
+  .SYZM_name {
+    font-family: 'Fraunces', 'Songti SC', serif; font-size: 1.5rem; font-weight: 600;
+    letter-spacing: .03em; margin: 8px 0 10px;
+  }
+  .SYZM_desc { font-size: .84rem; line-height: 1.9; color: #6B6B7A; transition: color .22s; }
+  .SYZM_tagline { margin-top: 12px; font-size: .74rem; letter-spacing: .06em; color: #8C8778; }
+  .SYZM_go {
+    align-self: flex-start; font-size: .8rem; letter-spacing: .08em;
+    padding: 8px 16px; border: 1px solid #1A1A2E; color: #1A1A2E;
+    transition: color .22s, border-color .22s;
+  }
+  .SYZM_note {
+    margin-top: 34px; padding-top: 18px; border-top: 1px solid #C9C3B4;
+    font-size: .82rem; line-height: 1.95; color: #6B6B7A;
+  }
+  .SYZM_foot {
+    max-width: 900px; margin: 32px auto 0; padding-top: 16px; border-top: 1px solid #1A1A2E;
+    font-family: 'Fraunces', serif; font-size: .82rem; color: #6B6B7A;
+    display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap;
+  }
+</style>
+</head>
+<body>
+
+<header class="SYZM_bar">
+  <span class="SYZM_mark">touch tasks · 触摸事件</span>
+  <a class="SYZM_back" href="index.html">返回首页</a>
+</header>
+
+<main class="SYZM_main">
+  <div class="SYZM_label">Mobile · Touch · Sensor</div>
+  <h1 class="SYZM_title">任务 · <em>触摸事件</em></h1>
+  <p class="SYZM_sub">
+    从「看清手指做了什么」到「让页面跟着手走」：四项移动端任务依次是事件观察、滑动切换、双指缩放与传感器触发。
+    建议用手机打开，电脑上可用 DevTools 设备模式。
+  </p>
+
+  <div class="SYZM_grid">
+
+    <a class="SYZM_item" href="touch-probe.html">
+      <div>
+        <div class="SYZM_no">01</div>
+        <h2 class="SYZM_name">事件侦探</h2>
+        <p class="SYZM_desc">探针区实时记录 touchstart / touchmove / touchend / click 的顺序与坐标，自动绘制手指轨迹，并附五种操作实测表。</p>
+        <div class="SYZM_tagline">观察 · 记录 · 不写业务代码</div>
+      </div>
+      <span class="SYZM_go">打开任务 →</span>
+    </a>
+
+    <a class="SYZM_item" href="mobile-gesture.html">
+      <div>
+        <div class="SYZM_no">02</div>
+        <h2 class="SYZM_name">手势卡片</h2>
+        <p class="SYZM_desc">四道中华美食，左滑下一道、右滑上一道；40px 阈值防误触、0.3s 过渡、300ms 冷却与首尾边界提示。</p>
+        <div class="SYZM_tagline">touch-action: pan-y · 位移阈值</div>
+      </div>
+      <span class="SYZM_go">打开任务 →</span>
+    </a>
+
+    <a class="SYZM_item" href="mobile-zoom.html">
+      <div>
+        <div class="SYZM_no">03</div>
+        <h2 class="SYZM_name">图片查看器</h2>
+        <p class="SYZM_desc">双指以中点为基准缩放 1×~4×，双击在 1× / 2× 间切换，放大后单指拖动并自动收边，右下角实时比例指示。</p>
+        <div class="SYZM_tagline">双指中点锚定 · 不跳</div>
+      </div>
+      <span class="SYZM_go">打开任务 →</span>
+    </a>
+
+    <a class="SYZM_item" href="mobile-sensor.html">
+      <div>
+        <div class="SYZM_no">04</div>
+        <h2 class="SYZM_name">摇一摇抽菜谱</h2>
+        <p class="SYZM_desc">devicemotion 合成加速度超过 18 判定摇动，1.5 秒冷却防重复触发；含 iOS 授权流程与「点我抽一次」降级。</p>
+        <div class="SYZM_tagline">加速度阈值 · 降级方案</div>
+      </div>
+      <span class="SYZM_go">打开任务 →</span>
+    </a>
+
+  </div>
+
+  <p class="SYZM_note">
+    说明：任务一的探针页与任务二的卡片页都能用手指直接操作；任务三需要真实双指手势；任务四需要点「允许读取运动传感器」。
+    若在电脑上查看，请按 F12 打开设备模式并开启触摸模拟。
+  </p>
+</main>
+
+<footer class="SYZM_foot">
+  <span>邵玉紫檬 · 24002120416</span>
+  <span>touch · gesture · pinch · motion</span>
+</footer>
+
+</body>
+</html>
