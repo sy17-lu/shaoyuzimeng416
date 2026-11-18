@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>图片查看器 · 双指缩放 + 双击放大 + 拖动</title>
+<!--
+  作者：邵玉紫檬
+  姓名学号：邵玉紫檬 / 24002120416
+  建立时间：2026-11-18
+  使用大模型：DeepSeek-V4.1-Flash
+  功能名称：移动端图片查看器（1~4 倍双指缩放、双击 1x/2x 切换、放大后拖动与边界限制）
+-->
+<link rel="stylesheet" href="cdn/fonts/fonts.css">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Inter', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+    background: #F2EFE8; color: #1A1A2E; min-height: 100vh; padding: 0 20px 44px;
+  }
+
+  /* 顶栏 */
+  .SYZM_bar {
+    display: flex; justify-content: space-between; align-items: center; gap: 14px;
+    max-width: 560px; margin: 0 auto; padding: 22px 0 12px; border-bottom: 1px solid #1A1A2E;
+  }
+  .SYZM_mark {
+    font-family: 'Fraunces', serif; font-size: .86rem; font-weight: 600;
+    letter-spacing: .1em; color: #D90429;
+  }
+  .SYZM_back {
+    font-family: 'Fraunces', serif; font-size: .86rem; text-decoration: none;
+    color: #1A1A2E; border-bottom: 1px solid #1A1A2E; padding-bottom: 2px;
+  }
+
+  /* 主体 */
+  .SYZM_main { max-width: 560px; margin: 0 auto; padding-top: 24px; }
+  .SYZM_title {
+    font-family: 'Fraunces', serif; font-weight: 300; letter-spacing: -.01em;
+    font-size: clamp(1.6rem, 5.6vw, 2.2rem); line-height: 1.18;
+  }
+  .SYZM_title em { font-style: italic; font-weight: 600; color: #D90429; }
+  .SYZM_sub { font-size: .85rem; color: #6B6B7A; line-height: 1.9; margin: 10px 0 18px; }
+
+  /* 查看器容器：overflow:hidden + touch-action:none + user-select:none */
+  .SYZM_stage {
+    position: relative; overflow: hidden; background: #10131C;
+    border: 1px solid #1A1A2E; height: min(64vh, 520px);
+    touch-action: none; user-select: none; -webkit-user-select: none;
+    -webkit-touch-callout: none; cursor: grab;
+  }
+  .SYZM_stage.SYZM_grabbing { cursor: grabbing; }
+  .SYZM_stage img {
+    position: absolute; left: 0; top: 0; width: 100%; height: 100%;
+    object-fit: cover; max-width: none; transform-origin: 0 0;
+    will-change: transform; pointer-events: none;
+  }
+  .SYZM_stage img.SYZM_anim { transition: transform .25s cubic-bezier(.3, .8, .3, 1); }
+
+  /* 打开提示 */
+  .SYZM_tip {
+    position: absolute; left: 50%; top: 14px; transform: translateX(-50%);
+    padding: 8px 16px; font-size: .78rem; letter-spacing: .04em;
+    background: rgba(15, 19, 28, .82); color: #F4EDE4; border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, .18); pointer-events: none;
+    transition: opacity .3s;
+  }
+  .SYZM_tip.SYZM_hide { opacity: 0; }
+
+  /* 缩放比例指示器（加分项） */
+  .SYZM_scale {
+    position: absolute; right: 12px; bottom: 12px; padding: 6px 12px;
+    font-family: 'Fraunces', serif; font-size: .82rem; letter-spacing: .08em;
+    color: #F4EDE4; background: rgba(15, 19, 28, .72);
+    border: 1px solid rgba(255, 255, 255, .2); border-radius: 999px;
+    pointer-events: none;
+  }
+
+  /* 操作说明 */
+  .SYZM_meta {
+    display: flex; flex-wrap: wrap; justify-content: space-between; gap: 10px;
+    padding-top: 12px; font-size: .82rem; color: #6B6B7A;
+  }
+  .SYZM_meta b { color: #D90429; font-weight: 600; }
+
+  .SYZM_notes { margin-top: 26px; border-top: 1px solid #C9C3B4; padding-top: 18px; }
+  .SYZM_notes h2 {
+    font-family: 'Fraunces', serif; font-size: 1.1rem; font-weight: 500; margin-bottom: 10px;
+  }
+  .SYZM_notes li {
+    list-style: none; position: relative; padding-left: 20px;
+    font-size: .84rem; line-height: 1.95; color: #3B3B4A;
+  }
+  .SYZM_notes li::before { content: "✓"; position: absolute; left: 0; color: #D90429; font-weight: 700; }
+  .SYZM_notes li + li { margin-top: 6px; }
+  .SYZM_notes code {
+    font-family: Consolas, monospace; font-size: .8rem; background: #E7E2D6;
+    padding: 1px 5px; border-radius: 3px;
+  }
+  .SYZM_foot {
+    max-width: 560px; margin: 32px auto 0; padding-top: 16px; border-top: 1px solid #1A1A2E;
+    font-family: 'Fraunces', serif; font-size: .82rem; color: #6B6B7A;
+    display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap;
+  }
+</style>
+</head>
+<body>
+
+<header class="SYZM_bar">
+  <span class="SYZM_mark">mobile zoom · 图片查看器</span>
+  <a class="SYZM_back" href="index.html">返回首页</a>
+</header>
+
+<main class="SYZM_main">
+  <h1 class="SYZM_title">双指<em>放大</em>，看清每一处</h1>
+  <p class="SYZM_sub">
+    双指外扩放大、内收缩小（1× ~ 4×）；双击在 1× 与 2× 之间切换；放大后单指拖动查看细节，松手自动收回边界内。
+  </p>
+
+  <div class="SYZM_stage" id="SYZM_stage">
+    <img id="SYZM_img" src="swiper-imgs/aida_modu_1.jpg" alt="爱达·魔都号">
+    <div class="SYZM_tip" id="SYZM_tip">双指缩放请用手机打开</div>
+    <div class="SYZM_scale" id="SYZM_scaleInd">1.0×</div>
+  </div>
+
+  <div class="SYZM_meta">
+    <span>缩放基准：两指中心 · 上限 <b>4×</b> · 双击切换 <b>1× / 2×</b></span>
+    <span id="SYZM_state">就绪</span>
+  </div>
+
+  <section class="SYZM_notes">
+    <h2>为什么"缩放不跳"</h2>
+    <ul>
+      <li>手指按下时记住两指初始距离 <code>d0</code>、初始缩放 <code>s0</code>、初始位移 <code>t0</code> 与两指中点 <code>p0</code>；</li>
+      <li>中途只算比例 <code>s = s0 × d1 / d0</code>，<b>不再累乘</b>，所以不会越缩越飘；</li>
+      <li>把中点 <code>p0</code> 换算成图片内部坐标 <code>c = (p0 − t0) / s0</code>，再用 <code>t = p1 − c × s</code> 反推位移，保证"手指底下那张图的那一点"始终不动；</li>
+      <li>松手时把位移夹到边界内（1× 时直接归零），所以不会把图拖出容器。</li>
+    </ul>
+  </section>
+</main>
+
+<footer class="SYZM_foot">
+  <span>touchstart · touchmove · touchend · 双指中点缩放</span>
+  <span>邵玉紫檬 · 24002120416</span>
+</footer>
+
+<script>
+  var SYZM_stage = document.getElementById('SYZM_stage');
+  var SYZM_img = document.getElementById('SYZM_img');
+  var SYZM_tip = document.getElementById('SYZM_tip');
+  var SYZM_scaleInd = document.getElementById('SYZM_scaleInd');
+  var SYZM_state = document.getElementById('SYZM_state');
+
+  var SYZM_MIN = 1;         // 最小缩放
+  var SYZM_MAX = 4;         // 最大缩放
+  var SYZM_DOUBLE = 2;      // 双击放大到的倍数
+  var SYZM_TAP_GAP = 300;   // 双击判定的最大间隔（ms）
+  var SYZM_TAP_DIST = 30;   // 双击判定的最大位移（px）
+
+  var SYZM_scale = 1;       // 当前缩放
+  var SYZM_tx = 0;          // 当前横向位移
+  var SYZM_ty = 0;          // 当前纵向位移
+
+  var SYZM_pinchStartDist = 0;   // 双指初始距离
+  var SYZM_pinchStartScale = 1;  // 双指开始时缩放
+  var SYZM_pinchStartTx = 0;     // 双指开始时位移
+  var SYZM_pinchStartTy = 0;
+  var SYZM_pinchAnchor = null;   // 起始中点对应的图片内部坐标
+  var SYZM_panStart = null;      // 单指拖动起点
+  var SYZM_lastTap = { time: 0, x: 0, y: 0 };
+
+  // 取触点在容器内的相对坐标
+  function SYZM_local(touch) {
+    var rect = SYZM_stage.getBoundingClientRect();
+    return { x: touch.clientX - rect.left, y: touch.clientY - rect.top };
+  }
+
+  // 计算两指之间的距离
+  function SYZM_distance(a, b) {
+    var dx = a.x - b.x;
+    var dy = a.y - b.y;
+    return Math.sqrt(dx * dx + dy * dy);
+  }
+
+  // 取两指中点
+  function SYZM_midpoint(a, b) {
+    return { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
+  }
+
+  // 把缩放值夹在 1~4 之间
+  function SYZM_clampScale(value) {
+    return Math.min(SYZM_MAX, Math.max(SYZM_MIN, value));
+  }
+
+  // 计算当前缩放下允许的位移范围（1× 时只能是 0）
+  function SYZM_bounds(scale) {
+    var w = SYZM_stage.clientWidth;
+    var h = SYZM_stage.clientHeight;
+    return {
+      minX: w - w * scale,
+      maxX: 0,
+      minY: h - h * scale,
+      maxY: 0
+    };
+  }
+
+  // 把位移限制在边界内，并写入状态
+  function SYZM_clampTranslate(withAnim) {
+    var b = SYZM_bounds(SYZM_scale);
+    SYZM_tx = Math.min(b.maxX, Math.max(b.minX, SYZM_tx));
+    SYZM_ty = Math.min(b.maxY, Math.max(b.minY, SYZM_ty));
+    SYZM_apply(withAnim);
+  }
+
+  // 应用 transform 与比例指示器；withAnim 为 true 时带 0.25s 过渡
+  function SYZM_apply(withAnim) {
+    if (withAnim) {
+      SYZM_img.classList.add('SYZM_anim');
+    } else {
+      SYZM_img.classList.remove('SYZM_anim');
+    }
+    SYZM_img.style.transform = 'translate3d(' + SYZM_tx + 'px,' + SYZM_ty + 'px,0) scale(' + SYZM_scale + ')';
+    SYZM_scaleInd.textContent = SYZM_scale.toFixed(1) + '×';
+  }
+
+  // 隐藏"双指缩放请用手机打开"的提示
+  function SYZM_hideTip() {
+    if (SYZM_tip) SYZM_tip.classList.add('SYZM_hide');
+  }
+
+  // 手指按下：区分单指 / 双指，记录拖动起点或双指基准
+  function SYZM_onStart(e) {
+    SYZM_hideTip();
+
+    if (e.touches.length >= 2) {
+      // 双指：记录初始距离、缩放、位移，并算出中点对应的图片内部坐标
+      var p1 = SYZM_local(e.touches[0]);
+      var p2 = SYZM_local(e.touches[1]);
+      var mid = SYZM_midpoint(p1, p2);
+
+      SYZM_pinchStartDist = SYZM_distance(p1, p2) || 1;
+      SYZM_pinchStartScale = SYZM_scale;
+      SYZM_pinchStartTx = SYZM_tx;
+      SYZM_pinchStartTy = SYZM_ty;
+      SYZM_pinchAnchor = {
+        x: (mid.x - SYZM_tx) / SYZM_scale,
+        y: (mid.y - SYZM_ty) / SYZM_scale
+      };
+      SYZM_panStart = null;
+      SYZM_state.textContent = '双指缩放中';
+      return;
+    }
+
+    // 单指：先判断是否双击
+    var t = e.touches[0];
+    var p = SYZM_local(t);
+    var now = Date.now();
+    var isDouble = (now - SYZM_lastTap.time < SYZM_TAP_GAP) &&
+      (Math.abs(p.x - SYZM_lastTap.x) < SYZM_TAP_DIST) &&
+      (Math.abs(p.y - SYZM_lastTap.y) < SYZM_TAP_DIST);
+
+    if (isDouble) {
+      SYZM_toggleZoom(p);
+      SYZM_lastTap.time = 0;
+      SYZM_panStart = null;
+      return;
+    }
+
+    SYZM_lastTap = { time: now, x: p.x, y: p.y };
+    SYZM_panStart = { x: p.x, y: p.y, tx: SYZM_tx, ty: SYZM_ty };
+    if (SYZM_scale > 1) SYZM_stage.classList.add('SYZM_grabbing');
+  }
+
+  // 手指移动：双指按比例缩放（以两指中点为基准），单指按位移拖动
+  function SYZM_onMove(e) {
+    if (e.touches.length >= 2 && SYZM_pinchStartDist) {
+      var p1 = SYZM_local(e.touches[0]);
+      var p2 = SYZM_local(e.touches[1]);
+      var dist = SYZM_distance(p1, p2) || 1;
+      var mid = SYZM_midpoint(p1, p2);
+
+      // 比例缩放：始终以"初始状态"为基准，避免累乘误差
+      SYZM_scale = SYZM_clampScale(SYZM_pinchStartScale * (dist / SYZM_pinchStartDist));
+
+      // 让初始中点下的那一点跟随当前中点移动，因此不会"跳"
+      SYZM_tx = mid.x - SYZM_pinchAnchor.x * SYZM_scale;
+      SYZM_ty = mid.y - SYZM_pinchAnchor.y * SYZM_scale;
+
+      SYZM_apply(false);
+      SYZM_state.textContent = '缩放 ' + SYZM_scale.toFixed(2) + '×';
+      return;
+    }
+
+    if (e.touches.length === 1 && SYZM_panStart && SYZM_scale > 1) {
+      var cur = SYZM_local(e.touches[0]);
+      SYZM_tx = SYZM_panStart.tx + (cur.x - SYZM_panStart.x);
+      SYZM_ty = SYZM_panStart.ty + (cur.y - SYZM_panStart.y);
+
+      // 拖动过程中就夹到边界，手感更"有底"
+      var b = SYZM_bounds(SYZM_scale);
+      SYZM_tx = Math.min(b.maxX, Math.max(b.minX, SYZM_tx));
+      SYZM_ty = Math.min(b.maxY, Math.max(b.minY, SYZM_ty));
+
+      SYZM_apply(false);
+      SYZM_state.textContent = '拖动中';
+    }
+  }
+
+  // 手指抬起：结束缩放或拖动，收边并复位状态
+  function SYZM_onEnd(e) {
+    SYZM_stage.classList.remove('SYZM_grabbing');
+
+    if (e.touches.length === 0) {
+      if (SYZM_scale <= SYZM_MIN + 0.02) {
+        // 缩到接近 1× 时归位
+        SYZM_scale = 1;
+        SYZM_tx = 0;
+        SYZM_ty = 0;
+      }
+      SYZM_clampTranslate(true);
+      SYZM_pinchStartDist = 0;
+      SYZM_panStart = null;
+      SYZM_state.textContent = '就绪';
+      return;
+    }
+
+    // 双指变单指：把当前单指当作新的拖动起点，避免"跳一下"
+    if (e.touches.length === 1 && SYZM_scale > 1) {
+      var p = SYZM_local(e.touches[0]);
+      SYZM_panStart = { x: p.x, y: p.y, tx: SYZM_tx, ty: SYZM_ty };
+      SYZM_pinchStartDist = 0;
+    }
+  }
+
+  // 双击：在 1× 与 2× 之间切换，并以双击点为基准缩放
+  function SYZM_toggleZoom(point) {
+    var target = SYZM_scale > 1.4 ? 1 : SYZM_DOUBLE;
+    if (target === 1) {
+      SYZM_scale = 1;
+      SYZM_tx = 0;
+      SYZM_ty = 0;
+    } else {
+      // 以双击点为中心放大：该点保持不动
+      var cx = (point.x - SYZM_tx) / SYZM_scale;
+      var cy = (point.y - SYZM_ty) / SYZM_scale;
+      SYZM_scale = target;
+      SYZM_tx = point.x - cx * SYZM_scale;
+      SYZM_ty = point.y - cy * SYZM_scale;
+    }
+    SYZM_clampTranslate(true);
+    SYZM_state.textContent = '双击 → ' + SYZM_scale.toFixed(1) + '×';
+  }
+
+  // 窗口尺寸或方向变化：保持缩放与相对位置，只把位移重新夹进新边界
+  function SYZM_onResize() {
+    SYZM_clampTranslate(false);
+  }
+
+  // 绑定触摸与窗口事件
+  SYZM_stage.addEventListener('touchstart', SYZM_onStart, { passive: true });
+  SYZM_stage.addEventListener('touchmove', SYZM_onMove, { passive: true });
+  SYZM_stage.addEventListener('touchend', SYZM_onEnd, { passive: true });
+  SYZM_stage.addEventListener('touchcancel', SYZM_onEnd, { passive: true });
+  window.addEventListener('resize', SYZM_onResize);
+  window.addEventListener('orientationchange', SYZM_onResize);
+
+  // 图片加载完成后按容器尺寸重置一次状态
+  if (SYZM_img.complete) {
+    SYZM_apply(false);
+  } else {
+    SYZM_img.addEventListener('load', function () { SYZM_apply(false); });
+  }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>中华美食卡片 · 左右滑动切换</title>
+<!--
+  作者：邵玉紫檬
+  姓名学号：邵玉紫檬 / 24002120416
+  建立时间：2026-11-18
+  使用大模型：DeepSeek-V4.1-Flash
+  功能名称：移动端手势卡片（左右滑动切换 4 道菜，含阈值、边界提示与 300ms 冷却）
+-->
+<link rel="stylesheet" href="cdn/fonts/fonts.css">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Inter', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+    background: #F2EFE8; color: #1A1A2E;
+    min-height: 100vh; padding: 0 20px 48px;
+  }
+
+  /* 顶栏 */
+  .SYZM_bar {
+    display: flex; justify-content: space-between; align-items: center; gap: 14px;
+    max-width: 560px; margin: 0 auto; padding: 22px 0 12px; border-bottom: 1px solid #1A1A2E;
+  }
+  .SYZM_mark {
+    font-family: 'Fraunces', serif; font-size: .86rem; font-weight: 600;
+    letter-spacing: .1em; color: #D90429;
+  }
+  .SYZM_back {
+    font-family: 'Fraunces', serif; font-size: .86rem; text-decoration: none;
+    color: #1A1A2E; border-bottom: 1px solid #1A1A2E; padding-bottom: 2px;
+  }
+
+  /* 页面主体 */
+  .SYZM_stage { max-width: 560px; margin: 0 auto; padding-top: 26px; }
+  .SYZM_title {
+    font-family: 'Fraunces', serif; font-size: clamp(1.7rem, 6vw, 2.3rem);
+    font-weight: 300; line-height: 1.15; letter-spacing: -.01em;
+  }
+  .SYZM_title em { font-style: italic; font-weight: 600; color: #D90429; }
+  .SYZM_sub { font-size: .85rem; color: #6B6B7A; line-height: 1.9; margin: 10px 0 20px; }
+
+  /* 卡片舞台：touch-action: pan-y 让纵向滚动仍归页面，横向交给手势 */
+  .SYZM_deck {
+    position: relative; overflow: hidden;
+    border: 1px solid #1A1A2E; background: #FAF8F3;
+    touch-action: pan-y;
+  }
+  .SYZM_track {
+    display: flex; will-change: transform;
+    transition: transform .3s cubic-bezier(.4, .02, .25, 1);
+  }
+  .SYZM_card {
+    flex: 0 0 100%; min-height: 440px; padding: 26px 26px 28px;
+    display: flex; flex-direction: column; justify-content: space-between;
+    color: #FFF8F0; position: relative; overflow: hidden;
+    background-color: #14161F; background-size: cover; background-position: center;
+  }
+  /* 每道菜各自的 AI 生成实拍图 */
+  .SYZM_card.SYZM_c1 { background-image: url("mobile-imgs/mapo-tofu.jpg"); background-position: 50% 45%; }
+  .SYZM_card.SYZM_c2 { background-image: url("mobile-imgs/longjing-shrimp.jpg"); background-position: 50% 50%; }
+  .SYZM_card.SYZM_c3 { background-image: url("mobile-imgs/dongpo-pork.jpg"); background-position: 50% 52%; }
+  .SYZM_card.SYZM_c4 { background-image: url("mobile-imgs/osmanthus-lotus.jpg"); background-position: 50% 46%; }
+  /* 上暗下深的蒙版：既压住高光，又保证白字可读 */
+  .SYZM_card::before {
+    content: ""; position: absolute; inset: 0; pointer-events: none;
+    background:
+      linear-gradient(180deg, rgba(10, 12, 16, .58) 0%, rgba(10, 12, 16, .06) 30%, rgba(10, 12, 16, .42) 62%, rgba(10, 12, 16, .9) 100%),
+      radial-gradient(120% 80% at 50% 100%, rgba(10, 12, 16, .55), transparent 70%);
+  }
+  /* 文字压在蒙版之上 */
+  .SYZM_card > * { position: relative; z-index: 1; }
+  /* 浅底照片（龙井虾仁、桂花糖藕）加深一档，保证白字对比度 */
+  .SYZM_card.SYZM_c2::before,
+  .SYZM_card.SYZM_c4::before {
+    background:
+      linear-gradient(180deg, rgba(10, 12, 16, .74) 0%, rgba(10, 12, 16, .36) 26%, rgba(10, 12, 16, .24) 50%, rgba(10, 12, 16, .6) 72%, rgba(10, 12, 16, .95) 100%),
+      radial-gradient(120% 80% at 50% 100%, rgba(10, 12, 16, .6), transparent 70%);
+  }
+  .SYZM_no {
+    font-family: 'Fraunces', serif; font-size: .82rem; letter-spacing: .22em;
+    opacity: .92; text-shadow: 0 1px 8px rgba(0, 0, 0, .55);
+  }
+  .SYZM_name {
+    font-family: 'Fraunces', 'Songti SC', serif; font-size: 2.25rem; font-weight: 600;
+    letter-spacing: .04em; line-height: 1.22; margin: 12px 0 10px;
+    text-shadow: 0 2px 18px rgba(0, 0, 0, .55);
+  }
+  .SYZM_desc {
+    font-size: .92rem; line-height: 1.95; color: #F3ECE3; max-width: 400px;
+    text-shadow: 0 1px 10px rgba(0, 0, 0, .6);
+  }
+  .SYZM_tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
+  .SYZM_tags span {
+    font-size: .74rem; letter-spacing: .08em; padding: 5px 12px;
+    border: 1px solid rgba(255, 255, 255, .5); border-radius: 999px;
+    background: rgba(12, 14, 20, .38); backdrop-filter: blur(3px);
+  }
+
+  /* 边界 / 方向提示 */
+  .SYZM_toast {
+    position: absolute; left: 50%; bottom: 18px; transform: translate(-50%, 10px);
+    padding: 9px 18px; font-size: .82rem; letter-spacing: .04em;
+    background: rgba(15, 20, 35, .86); color: #FFF4E8; border-radius: 999px;
+    opacity: 0; pointer-events: none; transition: opacity .25s, transform .25s;
+  }
+  .SYZM_toast.SYZM_show { opacity: 1; transform: translate(-50%, 0); }
+
+  /* 底部计数与提示 */
+  .SYZM_meta {
+    display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px;
+    padding: 14px 0 0; font-size: .86rem; color: #3B3B4A;
+  }
+  .SYZM_counter { font-family: 'Fraunces', serif; font-size: 1rem; font-weight: 600; letter-spacing: .06em; }
+  .SYZM_counter b { color: #D90429; }
+  .SYZM_tip { color: #6B6B7A; font-size: .82rem; }
+
+  /* 验收自测 */
+  .SYZM_check { list-style: none; margin-top: 26px; border-top: 1px solid #C9C3B4; padding-top: 16px; }
+  .SYZM_check li {
+    font-size: .84rem; color: #3B3B4A; line-height: 1.95; padding-left: 20px; position: relative;
+  }
+  .SYZM_check li::before {
+    content: "✓"; position: absolute; left: 0; top: 0; color: #D90429; font-weight: 700;
+  }
+  .SYZM_check code {
+    font-family: Consolas, monospace; font-size: .8rem; background: #E7E2D6;
+    padding: 1px 5px; border-radius: 3px;
+  }
+  .SYZM_foot {
+    max-width: 560px; margin: 34px auto 0; padding-top: 16px; border-top: 1px solid #1A1A2E;
+    font-family: 'Fraunces', serif; font-size: .82rem; color: #6B6B7A;
+    display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap;
+  }
+</style>
+</head>
+<body>
+
+<header class="SYZM_bar">
+  <span class="SYZM_mark">mobile gesture · 手势卡片</span>
+  <a class="SYZM_back" href="index.html">返回首页</a>
+</header>
+
+<main class="SYZM_stage">
+  <h1 class="SYZM_title">中华美食 · <em>左右滑动</em></h1>
+  <p class="SYZM_sub">
+    在卡片上向左滑看下一道，向右滑回上一道；滑动距离不足 40px 视为误触，不会切换。
+    到第一张再右滑会提示「已经是第一张」。
+  </p>
+
+  <div class="SYZM_deck" id="SYZM_deck">
+    <div class="SYZM_track" id="SYZM_track">
+
+      <article class="SYZM_card SYZM_c1">
+        <div>
+          <div class="SYZM_no">DISH 01 / 04</div>
+          <h2 class="SYZM_name">麻婆豆腐</h2>
+          <p class="SYZM_desc">豆瓣与花椒在小火上慢慢逼出红油，豆腐嫩得能抖，麻辣鲜香烫五味俱全。</p>
+        </div>
+        <div class="SYZM_tags"><span>川菜</span><span>麻辣</span><span>下饭神器</span></div>
+      </article>
+
+      <article class="SYZM_card SYZM_c2">
+        <div>
+          <div class="SYZM_no">DISH 02 / 04</div>
+          <h2 class="SYZM_name">龙井虾仁</h2>
+          <p class="SYZM_desc">清明前的龙井新茶配河虾仁，茶香清雅、虾肉弹嫩，是杭帮菜里的清爽一味。</p>
+        </div>
+        <div class="SYZM_tags"><span>浙菜</span><span>清鲜</span><span>茶香</span></div>
+      </article>
+
+      <article class="SYZM_card SYZM_c3">
+        <div>
+          <div class="SYZM_no">DISH 03 / 04</div>
+          <h2 class="SYZM_name">东坡肉</h2>
+          <p class="SYZM_desc">五花肉切方块，黄酒慢煨两小时，酥而不碎、肥而不腻，收汁后油亮通红。</p>
+        </div>
+        <div class="SYZM_tags"><span>浙菜</span><span>慢炖</span><span>浓香</span></div>
+      </article>
+
+      <article class="SYZM_card SYZM_c4">
+        <div>
+          <div class="SYZM_no">DISH 04 / 04</div>
+          <h2 class="SYZM_name">桂花糖藕</h2>
+          <p class="SYZM_desc">糯米灌进莲藕孔里，与冰糖、桂花同煮，切片后软糯清甜，凉食更佳。</p>
+        </div>
+        <div class="SYZM_tags"><span>苏菜</span><span>甜口</span><span>冷盘</span></div>
+      </article>
+
+    </div>
+    <div class="SYZM_toast" id="SYZM_toast"></div>
+  </div>
+
+  <div class="SYZM_meta">
+    <span class="SYZM_counter" id="SYZM_counter">第 <b>1</b> / 4 张</span>
+    <span class="SYZM_tip">← 左滑下一道 · 右滑上一道 →　配图由 AI 生成</span>
+  </div>
+
+  <ul class="SYZM_check">
+    <li>短距离误触不切换：横移小于 <code>40px</code> 直接忽略（阈值生效）。</li>
+    <li>快速连续滑动不跳张：切换后 <code>300ms</code> 内忽略后续手势（冷却生效）。</li>
+    <li>纵向仍可滚动：卡片容器设 <code>touch-action: pan-y</code>，手指上下拖时页面正常滚动。</li>
+  </ul>
+</main>
+
+<footer class="SYZM_foot">
+  <span>touchstart · touchend · changedTouches[0]</span>
+  <span>邵玉紫檬 · 24002120416</span>
+</footer>
+
+<script>
+  var SYZM_track = document.getElementById('SYZM_track');
+  var SYZM_counter = document.getElementById('SYZM_counter');
+  var SYZM_toast = document.getElementById('SYZM_toast');
+  var SYZM_deck = document.getElementById('SYZM_deck');
+
+  var SYZM_total = SYZM_track.children.length; // 卡片总数
+  var SYZM_index = 0;                        // 当前第几张（从 0 开始）
+  var SYZM_startX = 0;                       // 手指按下时的横坐标
+  var SYZM_startY = 0;                       // 手指按下时的纵坐标
+  var SYZM_lastSwitch = 0;                   // 上一次切换的时间戳
+  var SYZM_THRESHOLD = 40;                   // 横向位移阈值（px）
+  var SYZM_COOLDOWN = 300;                   // 冷却时间（ms），与 0.3s 过渡动画对齐
+  var SYZM_toastTimer = null;
+
+  // 刷新卡片位置与底部计数
+  function SYZM_paint() {
+    SYZM_track.style.transform = 'translateX(' + (-SYZM_index * 100) + '%)';
+    SYZM_counter.innerHTML = '第 <b>' + (SYZM_index + 1) + '</b> / ' + SYZM_total + ' 张';
+  }
+
+  // 显示一条短暂提示（边界提示、冷却提示等）
+  function SYZM_showToast(text) {
+    SYZM_toast.textContent = text;
+    SYZM_toast.classList.add('SYZM_show');
+    clearTimeout(SYZM_toastTimer);
+    SYZM_toastTimer = setTimeout(function () {
+      SYZM_toast.classList.remove('SYZM_show');
+    }, 1400);
+  }
+
+  // 手指按下：记录起点坐标，供抬起时计算位移
+  function SYZM_onTouchStart(e) {
+    var t = e.changedTouches[0];
+    SYZM_startX = t.clientX;
+    SYZM_startY = t.clientY;
+  }
+
+  // 手指抬起：按横向位移与阈值判断是否切换，并处理冷却与边界
+  function SYZM_onTouchEnd(e) {
+    var t = e.changedTouches[0];
+    var dx = t.clientX - SYZM_startX;
+    var dy = t.clientY - SYZM_startY;
+
+    // 竖向位移更大，说明是在上下滚动页面，不做切换
+    if (Math.abs(dx) <= Math.abs(dy)) return;
+    // 横移不足阈值：视为误触
+    if (Math.abs(dx) < SYZM_THRESHOLD) return;
+
+    var now = Date.now();
+    // 冷却中：防止快速连滑一次跳两张
+    if (now - SYZM_lastSwitch < SYZM_COOLDOWN) {
+      SYZM_showToast('慢一点，一次只翻一张');
+      return;
+    }
+
+    if (dx < 0) {
+      SYZM_goto(SYZM_index + 1, '已经是最后一张');
+    } else {
+      SYZM_goto(SYZM_index - 1, '已经是第一张');
+    }
+  }
+
+  // 切换卡片：越界时给出提示，正常切换则刷新并重置冷却计时
+  function SYZM_goto(target, boundaryText) {
+    if (target < 0 || target > SYZM_total - 1) {
+      SYZM_showToast(boundaryText);
+      SYZM_lastSwitch = Date.now();
+      return;
+    }
+    SYZM_index = target;
+    SYZM_lastSwitch = Date.now();
+    SYZM_paint();
+  }
+
+  // 绑定手势事件；键盘左右键便于在电脑上验证同一套逻辑
+  SYZM_deck.addEventListener('touchstart', SYZM_onTouchStart, { passive: true });
+  SYZM_deck.addEventListener('touchend', SYZM_onTouchEnd, { passive: true });
+
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'ArrowLeft') SYZM_goto(SYZM_index + 1, '已经是最后一张');
+    if (e.key === 'ArrowRight') SYZM_goto(SYZM_index - 1, '已经是第一张');
+  });
+
+  SYZM_paint();
+</script>
+
+</body>
+</html>

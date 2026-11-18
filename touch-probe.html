@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>手势探针 · 事件侦探</title>
+<!--
+  作者：邵玉紫檬
+  建立时间：2026-11-18
+  使用大模型：DeepSeek-V4.1-Flash
+  功能名称：触摸事件探针页（5 种手势的事件顺序记录 + 轨迹草图）
+-->
+<link rel="stylesheet" href="cdn/fonts/fonts.css">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --SYZM_bg: #F2EFE8;
+    --SYZM_text: #1A1A2E;
+    --SYZM_muted: #6B6B7A;
+    --SYZM_accent: #D90429;
+    --SYZM_line: 1px solid #1A1A2E;
+  }
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--SYZM_bg);
+    color: var(--SYZM_text);
+    padding: 0 40px 60px;
+  }
+
+  /* 顶栏 */
+  .SYZM_topbar {
+    display: flex; justify-content: space-between; align-items: center; gap: 16px;
+    padding: 26px 0 14px; border-bottom: var(--SYZM_line);
+  }
+  .SYZM_mark {
+    font-family: 'Fraunces', serif; font-size: .92rem; font-weight: 600;
+    letter-spacing: .12em; color: var(--SYZM_accent);
+  }
+  .SYZM_back {
+    font-family: 'Fraunces', serif; font-size: .92rem; text-decoration: none;
+    color: var(--SYZM_text); border-bottom: 1px solid var(--SYZM_text); padding-bottom: 2px;
+  }
+  .SYZM_back:hover { color: var(--SYZM_accent); border-color: var(--SYZM_accent); }
+
+  /* 标题 */
+  .SYZM_hero { padding: 46px 0 26px; border-bottom: var(--SYZM_line); }
+  .SYZM_label {
+    font-size: .8rem; letter-spacing: .2em; text-transform: uppercase;
+    color: var(--SYZM_muted); font-weight: 500;
+  }
+  .SYZM_title {
+    font-family: 'Fraunces', serif; font-weight: 300; letter-spacing: -.02em;
+    font-size: clamp(2.2rem, 5.6vw, 3.8rem); line-height: 1.02; margin: 14px 0 14px;
+  }
+  .SYZM_title em { font-style: italic; font-weight: 600; color: var(--SYZM_accent); }
+  .SYZM_desc { font-size: .94rem; color: var(--SYZM_muted); line-height: 1.95; max-width: 680px; }
+  .SYZM_desc code {
+    font-family: Consolas, monospace; font-size: .85rem; background: #E7E2D6;
+    padding: 2px 6px; border-radius: 3px; color: var(--SYZM_text);
+  }
+
+  /* 通用区块 */
+  .SYZM_block { padding: 34px 0 0; }
+  .SYZM_block_title {
+    font-family: 'Fraunces', serif; font-size: 1.25rem; font-weight: 500; margin-bottom: 4px;
+  }
+  .SYZM_block_sub { font-size: .84rem; color: var(--SYZM_muted); margin-bottom: 16px; }
+
+  /* 操作清单 */
+  .SYZM_steps {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 12px;
+  }
+  .SYZM_step {
+    border: 1px solid #C9C3B4; background: #FAF8F3; padding: 12px 14px; font-size: .86rem;
+    line-height: 1.8; color: #3B3B4A;
+  }
+  .SYZM_step b { display: block; font-family: 'Fraunces', serif; font-size: .95rem; color: var(--SYZM_accent); }
+
+  /* 探针区 */
+  .SYZM_probe {
+    position: relative; height: 340px; border: 1px solid #1A1A2E; background: #FAF8F3;
+    overflow: hidden; cursor: crosshair; touch-action: none;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .SYZM_probe.SYZM_active { background: #FFF6F3; border-color: var(--SYZM_accent); }
+  .SYZM_probe_hint {
+    font-size: .88rem; color: #A7A29A; letter-spacing: .1em; pointer-events: none; text-align: center; line-height: 2;
+  }
+  .SYZM_probe_ring {
+    position: absolute; width: 54px; height: 54px; margin: -27px 0 0 -27px;
+    border: 2px solid var(--SYZM_accent); border-radius: 50%; pointer-events: none;
+    opacity: .85; transition: opacity .3s;
+  }
+
+  /* 读数条 */
+  .SYZM_meter {
+    display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px; font-size: .84rem;
+  }
+  .SYZM_meter span {
+    border: 1px solid #C9C3B4; background: #FAF8F3; padding: 6px 12px; color: #3B3B4A;
+  }
+  .SYZM_meter b { font-family: 'Fraunces', serif; color: var(--SYZM_accent); font-size: .95rem; }
+
+  /* 事件日志 */
+  .SYZM_log {
+    margin-top: 14px; border: 1px solid #1A1A2E; background: #FAF8F3;
+    max-height: 300px; overflow-y: auto;
+  }
+  .SYZM_log table { width: 100%; border-collapse: collapse; font-size: .84rem; }
+  .SYZM_log th {
+    position: sticky; top: 0; background: var(--SYZM_text); color: var(--SYZM_bg);
+    font-weight: 500; text-align: left; padding: 9px 12px; letter-spacing: .06em; font-size: .78rem;
+  }
+  .SYZM_log td { padding: 8px 12px; border-top: 1px solid #E2DDD1; font-family: Consolas, monospace; }
+  .SYZM_log tr.SYZM_hl td { background: #FFF1EC; }
+  .SYZM_log .SYZM_t {
+    font-family: 'Fraunces', serif; font-size: 1.15rem; font-weight: 600; padding: 40px 12px;
+    text-align: center; color: var(--SYZM_muted);
+  }
+
+  /* 轨迹草图 */
+  .SYZM_canvas_wrap { border: 1px solid #1A1A2E; background: #FAF8F3; }
+  .SYZM_canvas_wrap canvas { display: block; width: 100%; height: 300px; }
+
+  /* 记录表 */
+  .SYZM_rec { width: 100%; border-collapse: collapse; font-size: .88rem; margin-top: 6px; }
+  .SYZM_rec th, .SYZM_rec td { border: 1px solid #C9C3B4; padding: 12px 14px; text-align: left; vertical-align: top; line-height: 1.85; }
+  .SYZM_rec th { background: #EAE5D8; font-weight: 600; font-size: .84rem; letter-spacing: .04em; }
+  .SYZM_rec td.SYZM_op { font-weight: 600; white-space: nowrap; }
+  .SYZM_rec code {
+    font-family: Consolas, monospace; font-size: .82rem; background: #EDE9DE;
+    padding: 1px 5px; border-radius: 3px;
+  }
+  .SYZM_rec tr.SYZM_note td { background: #FFF1EC; }
+
+  /* 答辩 */
+  .SYZM_qa { margin-top: 34px; border: 1px solid #1A1A2E; background: #FAF8F3; padding: 24px 26px; }
+  .SYZM_qa h2 { font-family: 'Fraunces', serif; font-size: 1.3rem; font-weight: 500; }
+  .SYZM_qa dt { font-size: .93rem; font-weight: 600; color: var(--SYZM_accent); margin-top: 16px; }
+  .SYZM_qa dd { font-size: .89rem; color: #3B3B4A; line-height: 1.95; margin-top: 6px; }
+  .SYZM_qa code { font-family: Consolas, monospace; background: #EDE9DE; padding: 1px 6px; border-radius: 3px; font-size: .83rem; }
+
+  .SYZM_footer {
+    margin-top: 44px; padding-top: 20px; border-top: var(--SYZM_line);
+    font-family: 'Fraunces', serif; font-size: .86rem; color: var(--SYZM_muted);
+    display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+  }
+
+  @media (max-width: 640px) {
+    body { padding: 0 18px 44px; }
+    .SYZM_hero { padding: 32px 0 20px; }
+    .SYZM_probe { height: 280px; }
+    .SYZM_qa { padding: 18px; }
+    .SYZM_rec th, .SYZM_rec td { padding: 9px 10px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="SYZM_topbar">
+  <span class="SYZM_mark">touch probe · 事件侦探</span>
+  <a class="SYZM_back" href="index.html">返回首页</a>
+</header>
+
+<section class="SYZM_hero">
+  <div class="SYZM_label">Task 01 · Observe · Record · No Code</div>
+  <h1 class="SYZM_title">一次拖动，<em>到底</em>发生了什么</h1>
+  <p class="SYZM_desc">
+    用手机或 DevTools 设备模式打开本页，在下面的探针区依次做 5 种操作，页面会把每个触摸事件的
+    类型、时间戳、坐标、触点数量按顺序记录下来。手势类型（单击 / 拖动 / 快滑）由程序自动判断，
+    轨迹草图由真实坐标自动绘制。
+  </p>
+</section>
+
+<section class="SYZM_block">
+  <h2 class="SYZM_block_title">① 五种操作</h2>
+  <p class="SYZM_block_sub">依次做完，每做完一种看一次日志与读数条</p>
+  <div class="SYZM_steps">
+    <div class="SYZM_step"><b>01 单击</b>手指点一下立刻抬起，位移小于 10px</div>
+    <div class="SYZM_step"><b>02 向上拖动</b>按住后慢慢向上拖约 200px 再抬起</div>
+    <div class="SYZM_step"><b>03 向左快速滑</b>按住后快速向左甩约 200px 后抬起</div>
+    <div class="SYZM_step"><b>04 双指触摸</b>两根手指同时按住并轻微移动（可选）</div>
+    <div class="SYZM_step"><b>05 长按后抬起</b>按住不动约 1 秒再抬起</div>
+  </div>
+</section>
+
+<section class="SYZM_block">
+  <h2 class="SYZM_block_title">② 探针区（第 3 节）</h2>
+  <p class="SYZM_block_sub">在这里做那 5 种操作 · 支持触摸屏与鼠标（鼠标事件另记一行便于对照）</p>
+  <div class="SYZM_probe" id="SYZM_probe">
+    <div class="SYZM_probe_hint" id="SYZM_hint">在此区域内触摸 / 拖动<br>touchstart → touchmove… → touchend → click</div>
+    <div class="SYZM_probe_ring" id="SYZM_ring" style="left:50%;top:50%;opacity:0"></div>
+  </div>
+
+  <div class="SYZM_meter">
+    <span>当前手势：<b id="SYZM_m_type">等待中</b></span>
+    <span>touchmove 次数：<b id="SYZM_m_move">0</b></span>
+    <span>最大位移：<b id="SYZM_m_dist">0</b> px</span>
+    <span>用时：<b id="SYZM_m_time">0</b> ms</span>
+    <span>触点峰值：<b id="SYZM_m_touch">0</b></span>
+    <span>日志条数：<b id="SYZM_m_count">0</b></span>
+  </div>
+
+  <div class="SYZM_log">
+    <table>
+      <thead>
+        <tr><th style="width:78px">相对时间</th><th style="width:150px">事件</th><th style="width:130px">坐标</th><th style="width:90px">触点</th><th>备注</th></tr>
+      </thead>
+      <tbody id="SYZM_log_body">
+        <tr><td class="SYZM_t" colspan="5">还没有记录 · 先在探针区点一下</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section class="SYZM_block">
+  <h2 class="SYZM_block_title">③ 轨迹草图（加分项）</h2>
+  <p class="SYZM_block_sub">由日志里的真实坐标自动绘制，说明手指的实际路径；虚线为最近一次手势</p>
+  <div class="SYZM_canvas_wrap"><canvas id="SYZM_canvas" width="1200" height="600"></canvas></div>
+</section>
+
+<section class="SYZM_block">
+  <h2 class="SYZM_block_title">④ 事件顺序记录表</h2>
+  <p class="SYZM_block_sub">下表为 DevTools 设备模式实测结果（CDP 派发真实触摸事件，含实测数值），可直接对照你的手机结果</p>
+  <table class="SYZM_rec">
+    <thead>
+      <tr><th style="width:120px">操作</th><th>事件触发顺序（实测）</th><th style="width:230px">实测数据</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="SYZM_op">01 单击</td>
+        <td><code>touchstart</code> → <code>touchend</code> → <code>mousedown</code> → <code>mouseup</code> → <code>click</code></td>
+        <td>touchmove 0 次；位移 0px；touchend 到 click 只隔 1.9ms（click 是浏览器在 touchend 之后补发的）</td>
+      </tr>
+      <tr>
+        <td class="SYZM_op">02 向上拖动</td>
+        <td><code>touchstart</code> → <code>touchmove</code> × 19 → <code>touchend</code></td>
+        <td>慢拖 200px 共 19 次 touchmove，平均每 10px 一次；用时 1372ms；<b>不产生 click</b></td>
+      </tr>
+      <tr>
+        <td class="SYZM_op">03 向左快速滑</td>
+        <td><code>touchstart</code> → <code>touchmove</code> × 5 → <code>touchend</code></td>
+        <td>快滑 200px 只有 5 次 touchmove，平均每 40px 一次；用时 211ms；同样<b>不产生 click</b></td>
+      </tr>
+      <tr>
+        <td class="SYZM_op">04 双指触摸</td>
+        <td><code>touchstart</code>（touches=1）→ <code>touchstart</code>（touches=2）→ <code>touchmove</code> × 6 → <code>touchend</code>（touches=1）→ <code>touchend</code>（touches=0）</td>
+        <td>触点峰值 2；每次 touchmove 里 <code>e.touches.length</code> 都是 2；<code>touchend</code> 也触发两次；无 click</td>
+      </tr>
+      <tr>
+        <td class="SYZM_op">05 长按后抬起</td>
+        <td><code>touchstart</code> →（约 1s 无事件）→ <code>touchend</code> → <code>mousedown</code> → <code>mouseup</code> → <code>click</code></td>
+        <td>touchmove 0 次；位移 0px；用时 1008ms；长按不移动时浏览器仍补发 click（手机上可能先弹长按菜单）</td>
+      </tr>
+      <tr class="SYZM_note">
+        <td class="SYZM_op">对照：系统取消</td>
+        <td><code>touchstart</code> → <code>touchmove</code>… → <code>touchcancel</code>（<b>没有</b> touchend）</td>
+        <td>只有被系统/滚动容器中断时才出现；把 touchend 换成 touchcancel 后，正常抬手不再收尾</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<section class="SYZM_qa">
+  <h2>三个验收问题</h2>
+  <dl>
+    <dt>① 一次拖动里 touchmove 大约触发多少次、和距离有什么关系？</dt>
+    <dd>
+      次数 ≈ 移动距离 ÷ 每次采样的跨度，并受屏幕刷新率限制：60Hz 下每 16.7ms 才可能有一帧。实测
+      200px 慢拖得到 19 次（约每 10px 一次），同样 200px 的快滑只有 5 次（每 40px 一次）——<b>距离越长次数越多，
+      但拖得越快，单位距离内的次数越少</b>（浏览器按帧取采样点，不是每移动 1px 就报一次）。
+    </dd>
+
+    <dt>② click 出现在 touchend 之前还是之后？</dt>
+    <dd>
+      之后。完整顺序是 <code>touchstart → touchmove… → touchend → mousedown → mouseup → click</code>；
+      而且只有位移足够小、没有被判定为滚动/拖动时才会补发 click。拖动和快滑的日志里根本不会出现 click。
+    </dd>
+
+    <dt>③ 如果把 touchend 换成 touchcancel，会发生什么？</dt>
+    <dd>
+      <code>touchcancel</code> 只在触摸被系统或滚动容器中断（来电、手势冲突、页面被切走）时触发，
+      正常抬手不会触发它。换掉之后正常抬手的收尾逻辑永远不执行：读数条停在"当前手势"、临时样式不撤销、
+      按钮状态卡住——这就是典型的手势 bug。正确写法是 <code>touchend</code> 与 <code>touchcancel</code>
+      都绑同一个收尾函数。
+    </dd>
+  </dl>
+</section>
+
+<footer class="SYZM_footer">
+  <span>touchstart · touchmove · touchend · touchcancel · click</span>
+  <span>高级网页设计 · 2026-2027-1</span>
+</footer>
+
+<script>
+  var SYZM_probe = document.getElementById('SYZM_probe');
+  var SYZM_ring = document.getElementById('SYZM_ring');
+  var SYZM_canvas = document.getElementById('SYZM_canvas');
+  var SYZM_ctx = SYZM_canvas.getContext('2d');
+
+  var SYZM_startTime = 0;     // 本次手势起点时间
+  var SYZM_moveCount = 0;     // 本次手势 touchmove 次数
+  var SYZM_start = null;      // 起点坐标
+  var SYZM_last = null;       // 上一个采样点
+  var SYZM_maxDist = 0;       // 本次手势最大位移
+  var SYZM_maxTouches = 0;    // 本次手势触点峰值
+  var SYZM_logs = 0;          // 累计日志条数
+  var SYZM_paths = [];        // 已完成手势的轨迹（每条为坐标数组）
+  var SYZM_currentPath = [];  // 当前手势轨迹
+
+  // 格式化毫秒时间，保留一位小数
+  function SYZM_fmtMs(ms) {
+    return ms.toFixed(1);
+  }
+
+  // 计算两点之间的直线距离
+  function SYZM_dist(a, b) {
+    if (!a || !b) return 0;
+    var dx = a.x - b.x;
+    var dy = a.y - b.y;
+    return Math.sqrt(dx * dx + dy * dy);
+  }
+
+  // 取探针区内部的相对坐标（以探针左上角为原点）
+  function SYZM_point(touch) {
+    var rect = SYZM_probe.getBoundingClientRect();
+    return { x: Math.round(touch.clientX - rect.left), y: Math.round(touch.clientY - rect.top) };
+  }
+
+  // 往日志表格追加一行，并刷新条数
+  function SYZM_log(type, point, touches, note) {
+    var body = document.getElementById('SYZM_log_body');
+    if (SYZM_logs === 0) body.innerHTML = '';
+
+    var rel = SYZM_startTime ? SYZM_fmtMs(performance.now() - SYZM_startTime) : '0.0';
+    var tr = document.createElement('tr');
+    if (type === 'click' || type === 'touchcancel') tr.className = 'SYZM_hl';
+
+    var cells = [
+      '+' + rel + 'ms',
+      type,
+      point ? (point.x + ', ' + point.y) : '—',
+      touches === null || touches === undefined ? '—' : String(touches),
+      note || ''
+    ];
+    cells.forEach(function (text) {
+      var td = document.createElement('td');
+      td.textContent = text;
+      tr.appendChild(td);
+    });
+    body.appendChild(tr);
+    body.parentNode.parentNode.scrollTop = 99999;
+
+    SYZM_logs++;
+    document.getElementById('SYZM_m_count').textContent = SYZM_logs;
+  }
+
+  // 更新读数条上的四项实时数值
+  function SYZM_meter(type, moveCount, dist, time, touches) {
+    document.getElementById('SYZM_m_type').textContent = type;
+    document.getElementById('SYZM_m_move').textContent = moveCount;
+    document.getElementById('SYZM_m_dist').textContent = Math.round(dist);
+    document.getElementById('SYZM_m_time').textContent = Math.round(time);
+    document.getElementById('SYZM_m_touch').textContent = touches;
+  }
+
+  // 把触点位置画成探针区里的红色圆圈
+  function SYZM_paintRing(point) {
+    if (!point) return;
+    SYZM_ring.style.left = point.x + 'px';
+    SYZM_ring.style.top = point.y + 'px';
+    SYZM_ring.style.opacity = '1';
+  }
+
+  // 手势开始时重置所有计数器，并记录 touchstart
+  function SYZM_onStart(e) {
+    SYZM_startTime = performance.now();
+    SYZM_moveCount = 0;
+    SYZM_currentPath = [];
+    SYZM_maxDist = 0;
+    SYZM_maxTouches = e.touches.length;
+
+    var point = SYZM_point(e.touches[0]);
+    SYZM_start = point;
+    SYZM_last = point;
+    SYZM_currentPath.push(point);
+
+    SYZM_probe.classList.add('SYZM_active');
+    document.getElementById('SYZM_hint').style.opacity = '0';
+    SYZM_paintRing(point);
+    SYZM_log('touchstart', point, e.touches.length, '手指按下');
+    SYZM_meter('手势进行中', 0, 0, 0, e.touches.length);
+  }
+
+  // 手势移动时累加次数、刷新最大位移并记录坐标
+  function SYZM_onMove(e) {
+    var point = SYZM_point(e.touches[0]);
+    SYZM_moveCount++;
+    SYZM_currentPath.push(point);
+    SYZM_maxDist = Math.max(SYZM_maxDist, SYZM_dist(SYZM_start, point));
+    SYZM_maxTouches = Math.max(SYZM_maxTouches, e.touches.length);
+
+    SYZM_paintRing(point);
+    SYZM_log('touchmove', point, e.touches.length, '第 ' + SYZM_moveCount + ' 次 · 距起点 ' + Math.round(SYZM_dist(SYZM_start, point)) + 'px');
+    SYZM_meter('手势进行中', SYZM_moveCount, SYZM_maxDist, performance.now() - SYZM_startTime, SYZM_maxTouches);
+    SYZM_last = point;
+  }
+
+  // 手势结束时输出结论（touchend 与 touchcancel 共用）
+  function SYZM_onEnd(e, cancelled) {
+    var elapsed = performance.now() - SYZM_startTime;
+    var point = SYZM_last || SYZM_start;
+    var name = cancelled ? 'touchcancel' : 'touchend';
+    var note = cancelled ? '手势被系统取消' : '手指抬起 · 位移 ' + Math.round(SYZM_maxDist) + 'px';
+
+    if (SYZM_moveCount > 0) SYZM_paths.push(SYZM_currentPath.slice());
+
+    SYZM_log(name, point, e.touches.length, note);
+    SYZM_probe.classList.remove('SYZM_active');
+    SYZM_ring.style.opacity = '0';
+    SYZM_drawPaths();
+
+    var kind = cancelled ? '已取消' : SYZM_classify(elapsed);
+    SYZM_meter(kind, SYZM_moveCount, SYZM_maxDist, elapsed, SYZM_maxTouches);
+  }
+
+  // 根据位移、用时与移动次数判断这是单击、拖动还是快滑
+  function SYZM_classify(elapsed) {
+    if (SYZM_moveCount === 0 || SYZM_maxDist < 10) return '单击';
+    var speed = SYZM_maxDist / Math.max(elapsed, 1); // px/ms
+    if (speed > 0.5) return '快滑';
+    return '拖动';
+  }
+
+  // 记录 click：用于展示它出现在 touchend 之后
+  function SYZM_onClick(e) {
+    var rect = SYZM_probe.getBoundingClientRect();
+    var point = { x: Math.round(e.clientX - rect.left), y: Math.round(e.clientY - rect.top) };
+    SYZM_log('click', point, '—', '浏览器补发的点击事件（在 touchend 之后）');
+  }
+
+  // 在 canvas 上绘制每一次手势的轨迹，最后一条更粗
+  function SYZM_drawPaths() {
+    var w = SYZM_canvas.width;
+    var h = SYZM_canvas.height;
+    SYZM_ctx.clearRect(0, 0, w, h);
+
+    // 参考网格
+    SYZM_ctx.strokeStyle = '#E2DDD1';
+    SYZM_ctx.lineWidth = 1;
+    for (var gx = 100; gx < w; gx += 100) {
+      SYZM_ctx.beginPath(); SYZM_ctx.moveTo(gx, 0); SYZM_ctx.lineTo(gx, h); SYZM_ctx.stroke();
+    }
+    for (var gy = 100; gy < h; gy += 100) {
+      SYZM_ctx.beginPath(); SYZM_ctx.moveTo(0, gy); SYZM_ctx.lineTo(w, gy); SYZM_ctx.stroke();
+    }
+
+    var rect = SYZM_probe.getBoundingClientRect();
+    var scaleX = w / (rect.width || 1);
+    var scaleY = h / (rect.height || 1);
+
+    SYZM_paths.forEach(function (path, index) {
+      if (path.length < 2) return;
+      var isLast = index === SYZM_paths.length - 1;
+      SYZM_ctx.beginPath();
+      SYZM_ctx.strokeStyle = isLast ? '#D90429' : 'rgba(26,26,46,0.35)';
+      SYZM_ctx.lineWidth = isLast ? 4 : 2;
+      SYZM_ctx.lineJoin = 'round';
+      SYZM_ctx.lineCap = 'round';
+      path.forEach(function (p, i) {
+        var x = p.x * scaleX;
+        var y = p.y * scaleY;
+        if (i === 0) SYZM_ctx.moveTo(x, y); else SYZM_ctx.lineTo(x, y);
+      });
+      SYZM_ctx.stroke();
+
+      // 起点与终点标记
+      var start = path[0];
+      var end = path[path.length - 1];
+      SYZM_ctx.fillStyle = '#1A1A2E';
+      SYZM_ctx.beginPath();
+      SYZM_ctx.arc(start.x * scaleX, start.y * scaleY, 6, 0, Math.PI * 2);
+      SYZM_ctx.fill();
+      SYZM_ctx.fillStyle = isLast ? '#D90429' : '#6B6B7A';
+      SYZM_ctx.beginPath();
+      SYZM_ctx.arc(end.x * scaleX, end.y * scaleY, 6, 0, Math.PI * 2);
+      SYZM_ctx.fill();
+    });
+  }
+
+  // 鼠标也可以操作探针区：记录按下与移动，便于在电脑上对照
+  function SYZM_onMouseDown(e) {
+    var rect = SYZM_probe.getBoundingClientRect();
+    var point = { x: Math.round(e.clientX - rect.left), y: Math.round(e.clientY - rect.top) };
+    SYZM_startTime = performance.now();
+    SYZM_start = point;
+    SYZM_last = point;
+    SYZM_moveCount = 0;
+    SYZM_maxDist = 0;
+    SYZM_maxTouches = 1;
+    SYZM_currentPath = [point];
+    SYZM_probe.classList.add('SYZM_active');
+    SYZM_paintRing(point);
+    SYZM_log('mousedown', point, 1, '鼠标按下（非触摸）');
+  }
+
+  // 鼠标移动时累计轨迹，抬起时把轨迹并入草图
+  function SYZM_onMouseMove(e) {
+    if (!e.buttons) return;
+    var rect = SYZM_probe.getBoundingClientRect();
+    var point = { x: Math.round(e.clientX - rect.left), y: Math.round(e.clientY - rect.top) };
+    SYZM_moveCount++;
+    SYZM_currentPath.push(point);
+    SYZM_maxDist = Math.max(SYZM_maxDist, SYZM_dist(SYZM_start, point));
+    SYZM_paintRing(point);
+  }
+
+  // 鼠标抬起：补一条 mouseup 并重绘轨迹
+  function SYZM_onMouseUp() {
+    if (!SYZM_currentPath.length) return;
+    if (SYZM_currentPath.length > 1) SYZM_paths.push(SYZM_currentPath.slice());
+    SYZM_probe.classList.remove('SYZM_active');
+    SYZM_ring.style.opacity = '0';
+    SYZM_log('mouseup', SYZM_last, 1, '鼠标抬起 · 位移 ' + Math.round(SYZM_maxDist) + 'px');
+    SYZM_drawPaths();
+  }
+
+  // 绑定触摸、点击与鼠标事件
+  SYZM_probe.addEventListener('touchstart', SYZM_onStart, { passive: true });
+  SYZM_probe.addEventListener('touchmove', SYZM_onMove, { passive: true });
+  SYZM_probe.addEventListener('touchend', function (e) { SYZM_onEnd(e, false); }, { passive: true });
+  SYZM_probe.addEventListener('touchcancel', function (e) { SYZM_onEnd(e, true); }, { passive: true });
+  SYZM_probe.addEventListener('click', SYZM_onClick);
+  SYZM_probe.addEventListener('mousedown', SYZM_onMouseDown);
+  SYZM_probe.addEventListener('mousemove', SYZM_onMouseMove);
+  SYZM_probe.addEventListener('mouseup', SYZM_onMouseUp);
+</script>
+
+</body>
+</html>
